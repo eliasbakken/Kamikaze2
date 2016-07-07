@@ -2,6 +2,7 @@
 
 install_prerequisites() {
 	apt-get update
+	apt-get upgrade
 	apt-get install -y python-cairo python-gi-cairo
 	pip install virtualenv
 }
@@ -103,4 +104,5 @@ install_octoprint
 install_octoprint_redeem
 install_octoprint_toggle
 install_overlays
+
 
