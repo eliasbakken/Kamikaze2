@@ -17,6 +17,9 @@ install_redeem() {
 	make install_py
 	cp systemd/* /lib/systemd/system/
 	cp configs/* /etc/redeem/
+	touch /etc/redeem/local.cfg
+	chown octo:octo /etc/redeem/local.cfg
+	chmod 755  /etc/redeem/local.cfg
 	systemctl daemon-reload
 	systemctl restart redeem
 }
@@ -81,10 +84,23 @@ install_octoprint_toggle() {
 	sudo -u octo /usr/src/venv/bin/python setup.py install
 }
 
-#install_prerequisites
-#install_redeem
-#install_toggle
-#make_venv
-#install_octoprint
-#install_octoprint_redeem
+install_overlays() {
+	cd /usr/src/
+	if [ ! -d "bb.org-overlays" ]; then
+		git clone https://github.com/eliasbakken/bb.org-overlays
+	fi
+	cd bb.org-overlays
+	./dtc-overlay.sh
+	./install.sh
+}
+
+
+install_prerequisites
+install_redeem
+install_toggle
+make_venv
+install_octoprint
+install_octoprint_redeem
 install_octoprint_toggle
+install_overlays
+

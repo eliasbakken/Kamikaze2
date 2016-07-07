@@ -131,12 +131,12 @@ install_toggle() {
 post_toggle() {
     cd /usr/src/toggle
     cp systemd/toggle.service /lib/systemd/system/
-    systemctl enable toggle 
+    systemctl enable toggle
     systemctl start toggle
 }
 
 post_cura() {
-    # Copy profiles into Cura. 
+    # Copy profiles into Cura.
     mkdir -p /home/octo/.octoprint/slicingProfiles/cura/
     cp ./Cura/profiles/*.profile /home/octo/.octoprint/slicingProfiles/cura/
     chown octo:octo /home/octo/.octoprint/slicingProfiles/cura/
