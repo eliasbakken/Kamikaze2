@@ -15,6 +15,8 @@ make_test() {
 	chmod +x test.py
 	cd /etc/redeem
 	ln -s testing_rev_B.cfg printer.cfg
+
+	echo "cape_enable=bone_capemgr.enable_partno=BB-BONE-REPLICAP:0B3A" >> /boot/uEnv.txt
 }
 
 make_test
