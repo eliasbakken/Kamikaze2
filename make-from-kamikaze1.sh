@@ -36,6 +36,10 @@ install_toggle() {
 	make install
 	cp systemd/* /lib/systemd/system/
 	cp configs/* /etc/toggle/
+        touch /etc/toggle/local.cfg
+        chown octo:octo /etc/toggle/local.cfg
+        chmod 755  /etc/toggle/local.cfg
+	chown ocot:octo /etc/toggle
 	systemctl daemon-reload
 	systemctl restart toggle
 }
@@ -83,6 +87,15 @@ install_octoprint_toggle() {
 	chown -R octo:octo .
         chmod -R 755 .
 	sudo -u octo /usr/src/venv/bin/python setup.py install
+}
+
+
+install_cura_engine() {
+	cd /usr/src
+	if [ ! -f "15.04.6.tar.gz" ]; then
+		wget https://github.com/Ultimaker/CuraEngine/archive/15.04.6.tar.gz
+	fi
+	
 }
 
 install_overlays() {
