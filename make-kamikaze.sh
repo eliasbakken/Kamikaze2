@@ -20,7 +20,8 @@ stop_services() {
 }
 
 install_dependencies(){
-    apt-get update
+    apt-get update --fix-missing
+    apt-get upgrade -y
     apt-get install -y python-numpy \
     swig \
     cura-engine \
@@ -35,7 +36,10 @@ install_dependencies(){
     libgirepository1.0-dev \
     python-cairo
     pip install evdev
-
+    mkdir /home/octo/
+    mkdir /home/octo/.octoprint
+    useradd -g octo octo -d /home/octo/
+    chown -R octo:octo /home/octo
 }
 
 install_redeem() {
@@ -49,9 +53,9 @@ post_redeem() {
     cd /usr/src/redeem
     # Make profiles uploadable via Octoprint
     mkdir -p /etc/redeem
-    chown octo:octo /etc/redeem/
     cp configs/*.cfg /etc/redeem/
     cp data/*.cht /etc/redeem/
+    chown -R octo:octo /etc/redeem/
 
     # Install systemd script
     cp systemd/redeem.service /lib/systemd/system
@@ -60,10 +64,12 @@ post_redeem() {
 }
 
 install_octoprint() {
-    cd /usr/src
+    su octo
+    cd /usr/src/
     git clone https://github.com/foosel/OctoPrint.git
     cd OctoPrint
-    python setup.py install
+    python setup.py clean install
+    chown -R octo:octo /usr/src/Octoprint
 }
 
 post_octoprint() {
@@ -71,11 +77,6 @@ post_octoprint() {
     # Make config file for Octoprint
     cp OctoPrint/config.yaml /home/octo/.octoprint/
     chown octo:octo "/home/octo/.octoprint/config.yaml"
-
-    # Make folder for octoprint
-    mkdir -p /home/octo
-    mkdir -p "/home/octo/.octoprint"
-    chown -R octo:octo "/home/octo/"
 
     # Fix permissions for STL upload folder
     mkdir -p /usr/share/models
@@ -85,7 +86,7 @@ post_octoprint() {
     # Grant octo redeem restart rights
     echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
     echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
-    
+
     # Port forwarding
     /sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
     /usr/sbin/netfilter-persistent save
@@ -163,13 +164,13 @@ install_redeem
 post_redeem
 install_octoprint
 post_octoprint
-install_overlays
-install_sgx
-install_mash
-install_toggle
-post_toggle
-post_cura
-other
+#install_overlays
+#install_sgx
+#install_mash
+#install_toggle
+#post_toggle
+#post_cura
+#other
 
 echo "Rebooting"
 reboot
