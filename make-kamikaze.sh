@@ -36,10 +36,6 @@ install_dependencies(){
     libgirepository1.0-dev \
     python-cairo
     pip install evdev
-    mkdir /home/octo/
-    mkdir /home/octo/.octoprint
-    useradd -g octo octo -d /home/octo/
-    chown -R octo:octo /home/octo
 }
 
 install_redeem() {
@@ -64,12 +60,9 @@ post_redeem() {
 }
 
 install_octoprint() {
-    su octo
-    cd /usr/src/
-    git clone https://github.com/foosel/OctoPrint.git
-    cd OctoPrint
-    python setup.py clean install
-    chown -R octo:octo /usr/src/Octoprint
+    cd /home/octo
+    su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
+    su - octo -c 'cd OctoPrint && python setup.py clean install'
 }
 
 post_octoprint() {
@@ -143,11 +136,19 @@ post_cura() {
     chown octo:octo /home/octo/.octoprint/slicingProfiles/cura/
 }
 
+create_user() {
+    default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
+    mkdir /home/octo/
+    mkdir /home/octo/.octoprint
+    useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
+    chown -R octo:octo /home/octo
+    chown -R octo:octo /usr/local/lib/python2.7/dist-packages
+    chown -R octo:octo /usr/local/bin
+    chmod 755 -R /usr/local/lib/python2.7/dist-packages
+}
+
 
 other() {
-    default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
-
-    useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
 
     sed -i s/#dtb=$/dtb=am335x-boneblack-replicape.dtb/ /boot/uEnv.txt
     sed -i s/cape_universal=enable// /boot/uEnv.txt
@@ -162,14 +163,15 @@ stop_services
 install_dependencies
 install_redeem
 post_redeem
+create_user
 install_octoprint
 post_octoprint
-#install_overlays
-#install_sgx
-#install_mash
-#install_toggle
-#post_toggle
-#post_cura
+install_overlays
+install_sgx
+install_mash
+install_toggle
+post_toggle
+post_cura
 #other
 
 echo "Rebooting"
