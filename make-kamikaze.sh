@@ -20,7 +20,8 @@ stop_services() {
 }
 
 install_dependencies(){
-    apt-get update
+    apt-get update --fix-missing
+    apt-get upgrade -y
     apt-get install -y python-numpy \
     swig \
     cura-engine \
@@ -35,7 +36,6 @@ install_dependencies(){
     libgirepository1.0-dev \
     python-cairo
     pip install evdev
-
 }
 
 install_redeem() {
@@ -49,9 +49,9 @@ post_redeem() {
     cd /usr/src/redeem
     # Make profiles uploadable via Octoprint
     mkdir -p /etc/redeem
-    chown octo:octo /etc/redeem/
     cp configs/*.cfg /etc/redeem/
     cp data/*.cht /etc/redeem/
+    chown -R octo:octo /etc/redeem/
 
     # Install systemd script
     cp systemd/redeem.service /lib/systemd/system
@@ -60,10 +60,9 @@ post_redeem() {
 }
 
 install_octoprint() {
-    cd /usr/src
-    git clone https://github.com/foosel/OctoPrint.git
-    cd OctoPrint
-    python setup.py install
+    cd /home/octo
+    su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
+    su - octo -c 'cd OctoPrint && python setup.py clean install'
 }
 
 post_octoprint() {
@@ -71,11 +70,6 @@ post_octoprint() {
     # Make config file for Octoprint
     cp OctoPrint/config.yaml /home/octo/.octoprint/
     chown octo:octo "/home/octo/.octoprint/config.yaml"
-
-    # Make folder for octoprint
-    mkdir -p /home/octo
-    mkdir -p "/home/octo/.octoprint"
-    chown -R octo:octo "/home/octo/"
 
     # Fix permissions for STL upload folder
     mkdir -p /usr/share/models
@@ -85,7 +79,7 @@ post_octoprint() {
     # Grant octo redeem restart rights
     echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
     echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
-    
+
     # Port forwarding
     /sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
     /usr/sbin/netfilter-persistent save
@@ -142,11 +136,19 @@ post_cura() {
     chown octo:octo /home/octo/.octoprint/slicingProfiles/cura/
 }
 
+create_user() {
+    default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
+    mkdir /home/octo/
+    mkdir /home/octo/.octoprint
+    useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
+    chown -R octo:octo /home/octo
+    chown -R octo:octo /usr/local/lib/python2.7/dist-packages
+    chown -R octo:octo /usr/local/bin
+    chmod 755 -R /usr/local/lib/python2.7/dist-packages
+}
+
 
 other() {
-    default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
-
-    useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
 
     sed -i s/#dtb=$/dtb=am335x-boneblack-replicape.dtb/ /boot/uEnv.txt
     sed -i s/cape_universal=enable// /boot/uEnv.txt
@@ -161,6 +163,7 @@ stop_services
 install_dependencies
 install_redeem
 post_redeem
+create_user
 install_octoprint
 post_octoprint
 install_overlays
@@ -169,7 +172,7 @@ install_mash
 install_toggle
 post_toggle
 post_cura
-other
+#other
 
 echo "Rebooting"
 reboot
