@@ -3,7 +3,7 @@
 install_prerequisites() {
 	apt-get update
 	apt-get upgrade
-	apt-get install -y python-cairo python-gi-cairo
+	apt-get -y install python-cairo python-gi-cairo
 	pip install virtualenv
 }
 
@@ -19,6 +19,8 @@ install_redeem() {
 	cp systemd/* /lib/systemd/system/
 	cp configs/* /etc/redeem/
 	chown octo:octo /etc/redeem/
+	touch /etc/redeem/local.cfg
+	chown octo:octo /etc/redeem/local.cfg
 	systemctl daemon-reload
 	systemctl restart redeem
 }
@@ -35,16 +37,18 @@ install_toggle() {
 	cp systemd/* /lib/systemd/system/
 	cp configs/* /etc/toggle/
 	chown octo:octo /etc/toggle/
+	touch /etc/toggle/local.cfg
+	chown octo:octo /etc/toggle/local.cfg
 	systemctl daemon-reload
 	systemctl restart toggle
 }
 
 make_venv() {
-        cd /usr/src/
+	cd /usr/src/
 	mkdir venv
 	chown octo:octo venv
 	chmod 755 venv
-        sudo -u octo virtualenv venv
+	sudo -u octo virtualenv venv
 }
 
 

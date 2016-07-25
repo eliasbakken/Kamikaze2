@@ -42,6 +42,7 @@ install_redeem() {
     cd /usr/src/
     git clone https://bitbucket.org/intelligentagent/redeem
     cd redeem
+    git checkout develop
     python setup.py install
 }
 
@@ -131,6 +132,7 @@ post_toggle() {
 
 post_cura() {
     # Copy profiles into Cura.
+    cd /usr/src/Kamikaze2
     mkdir -p /home/octo/.octoprint/slicingProfiles/cura/
     cp ./Cura/profiles/*.profile /home/octo/.octoprint/slicingProfiles/cura/
     chown octo:octo /home/octo/.octoprint/slicingProfiles/cura/
