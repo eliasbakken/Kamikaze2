@@ -62,6 +62,7 @@ post_redeem() {
 install_octoprint() {
     cd /home/octo
     su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
+    su - octo -c 'cd OctoPrint && git reset --hard cb2e0d449f607bbc89c7ad13c983a0cf11bbfdee'
     su - octo -c 'cd OctoPrint && python setup.py clean install'
 }
 
