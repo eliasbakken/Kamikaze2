@@ -34,7 +34,8 @@ install_dependencies(){
     libclutter-1.0-dev \
     libmx-dev \
     libgirepository1.0-dev \
-    python-cairo
+    python-cairo \
+    byobu
     pip install evdev
 }
 
