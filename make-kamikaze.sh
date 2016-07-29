@@ -71,6 +71,33 @@ post_octoprint() {
     # Make config file for Octoprint
     cp OctoPrint/config.yaml /home/octo/.octoprint/
     chown octo:octo "/home/octo/.octoprint/config.yaml"
+    cat <<< 'EOF' /home/octo/.octoprint/config.yaml
+system:
+  actions:
+  - action: Restart Redeem
+    command: sudo systemctl restart redeem
+    name: Restart Redeem
+  - action: Restart OctoPrint
+    command: sudo systemctl restart octoprint
+    name: Restart OctoPrint
+  - action: Shutdown
+    command: sudo shutdown -h now
+    name: Shutdown
+  - action: Reboot
+    command: sudo shutdown -r now
+    name: Reboot
+plugins:
+  cura:
+    cura_engine: /usr/bin/CuraEngine
+  pluginmanager:
+    pip: /usr/local/bin/pip
+    pip_force_user: false
+  softwareupdate:
+    _config_version: 4
+    checks:
+      octoprint:
+        checkout_folder: /home/octo/OctoPrint
+EOF
 
     # Fix permissions for STL upload folder
     mkdir -p /usr/share/models
