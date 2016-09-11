@@ -2,107 +2,105 @@
 
 # TODO:
 # Make redeem dependencies built into redeem
+# Adafruit lib disregard overlay
 
-
-echo "Making Kamikaze"
+echo "Making Kamikaze 2.0.0"
 
 export LC_ALL=C
 
 stop_services() {
-    systemctl disable apache2
-    systemctl stop apache2
-    systemctl disable bonescript-autorun.service
-    systemctl stop bonescript-autorun.service
-    systemctl disable bonescript.socket
-    systemctl stop bonescript.socket
-    systemctl disable bonescript.service
-    systemctl stop bonescript.service
+        systemctl disable apache2
+        systemctl stop apache2
+        systemctl disable bonescript-autorun.service
+        systemctl stop bonescript-autorun.service
+        systemctl disable bonescript.socket
+        systemctl stop bonescript.socket
+        systemctl disable bonescript.service
+        systemctl stop bonescript.service
 }
 
 install_dependencies(){
-    apt-get update --fix-missing
-    apt-get upgrade -y
-    apt-get install -y python-numpy \
-    swig \
-    cura-engine \
-    iptables-persistent \
-    socat \
-    ti-sgx-ti335x-modules-`uname -r` \
-    gnome-common gtk-doc-tools \
-    gobject-introspection \
-    libglib2.0-dev python-gobject \
-    libclutter-1.0-dev \
-    libmx-dev \
-    libgirepository1.0-dev \
-    python-cairo
-    pip install evdev
+        apt-get update --fix-missing
+        apt-get upgrade -y
+        apt-get install -y python-numpy \
+        swig \
+        cura-engine \
+        iptables-persistent \
+        socat \
+        ti-sgx-es8-modules-4.4.20-bone13 \
+        gnome-common gtk-doc-tools \
+        gobject-introspection \
+        python-gobject \
+        libgirepository1.0-dev \
+        python-cairo
+        pip install evdev
 }
 
 install_redeem() {
-    cd /usr/src/
-    git clone https://bitbucket.org/intelligentagent/redeem
-    cd redeem
-    git checkout develop
-    python setup.py install
+        cd /usr/src/
+        git clone https://bitbucket.org/intelligentagent/redeem
+        cd redeem
+        git checkout develop
+        python setup.py install
 }
 
 post_redeem() {
-    cd /usr/src/redeem
-    # Make profiles uploadable via Octoprint
-    mkdir -p /etc/redeem
-    cp configs/*.cfg /etc/redeem/
-    cp data/*.cht /etc/redeem/
-    chown -R octo:octo /etc/redeem/
+        cd /usr/src/redeem
+        # Make profiles uploadable via Octoprint
+        mkdir -p /etc/redeem
+        cp configs/*.cfg /etc/redeem/
+        cp data/*.cht /etc/redeem/
+        chown -R octo:octo /etc/redeem/
 
-    # Install systemd script
-    cp systemd/redeem.service /lib/systemd/system
-    systemctl enable redeem
-    systemctl start redeem
+        # Install systemd script
+        cp systemd/redeem.service /lib/systemd/system
+        systemctl enable redeem
+        systemctl start redeem
 }
 
 install_octoprint() {
-    cd /home/octo
-    su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
-    su - octo -c 'cd OctoPrint && python setup.py clean install'
+        cd /home/octo
+        su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
+        su - octo -c 'cd OctoPrint && python setup.py clean install'
 }
 
 post_octoprint() {
-    cd /usr/src/Kamikaze2
-    # Make config file for Octoprint
-    cp OctoPrint/config.yaml /home/octo/.octoprint/
-    chown octo:octo "/home/octo/.octoprint/config.yaml"
+        cd /usr/src/Kamikaze2
+        # Make config file for Octoprint
+        cp OctoPrint/config.yaml /home/octo/.octoprint/
+        chown octo:octo "/home/octo/.octoprint/config.yaml"
 
-    # Fix permissions for STL upload folder
-    mkdir -p /usr/share/models
-    chown octo:octo /usr/share/models
-    chmod 777 /usr/share/models
+        # Fix permissions for STL upload folder
+        mkdir -p /usr/share/models
+        chown octo:octo /usr/share/models
+        chmod 777 /usr/share/models
 
-    # Grant octo redeem restart rights
-    echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
-    echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
+        # Grant octo redeem restart rights
+        echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
+        echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
 
-    # Port forwarding
-    /sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
-    /usr/sbin/netfilter-persistent save
+        # Port forwarding
+        /sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
+        /usr/sbin/netfilter-persistent save
 
-    # Install systemd script
-    cp ./OctoPrint/octoprint.service /lib/systemd/system/
-    systemctl enable octoprint
-    systemctl start octoprint
+        # Install systemd script
+        cp ./OctoPrint/octoprint.service /lib/systemd/system/
+        systemctl enable octoprint
+        systemctl start octoprint
 }
 
 install_overlays() {
-    cd /usr/src/
-    git clone https://github.com/eliasbakken/bb.org-overlays
-    cd bb.org-overlays
-    ./install.sh 
+        cd /usr/src/
+        git clone https://github.com/eliasbakken/bb.org-overlays
+        cd bb.org-overlays
+        ./install.sh 
 }
 
 install_sgx() {
-    cd /usr/src/Kamikaze2
-    tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
-    cd /opt/gfxinstall/
-    ./sgx-install.sh
+        cd /usr/src/Kamikaze2
+        tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
+        cd /opt/gfxinstall/
+        ./sgx-install.sh
 }
 
 install_libinput() {
