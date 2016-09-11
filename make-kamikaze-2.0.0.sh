@@ -105,12 +105,60 @@ install_sgx() {
     ./sgx-install.sh
 }
 
+install_libinput() {
+	cd /usr/src
+	wget http://www.freedesktop.org/software/libinput/libinput-1.0.0.tar.xz
+	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
+	make
+	make install
+}
+
+install_cogl() {
+	cd /usr/src
+	wget http://ftp.gnome.org/pub/GNOME/sources/cogl/1.22/cogl-1.22.2.tar.xz
+	tar xf cogl-1.22.2.tar.xz
+	cd cogl-1.22.2/
+	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --disable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
+	sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' cogl/winsys/cogl-winsys-egl.c 
+	make
+	make install
+}
+
+install_glib() {
+	cd /usr/src
+	wget http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.2.tar.xz
+	tar xf glib-2.48.2.tar.xz
+	cd glib-2.48.2/
+	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
+	make
+	make install
+	export LD_LIBRARY_PATH=/usr/lib/arm-linux-gnueabihf/
+}
+
+install_clutter() {
+	cd /usr/src
+	wget http://ftp.acc.umu.se/pub/GNOME/sources/clutter/1.26/clutter-1.26.0.tar.xz
+	tar xf clutter-1.26.0.tar.xz
+	cd clutter-1.26.0
+	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend
+	make
+	make install
+}
+
+install_mx() {
+	cd /usr/src
+	git clone https://github.com/clutter-project/mx.git
+	./autogen.sh --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --with-winsys=none --disable-gtk-doc --enable-introspection
+	make
+	make install
+}
+
 install_mash() {
     cd /usr/src
     git clone https://github.com/eliasbakken/mash.git
     cd /usr/src/mash
     ./autogen.sh --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection
-    sed -i 's:--library=libmash-@MASH_API_VERSION@.la:--library=mash-@MASH_API_VERSION@ \ --library-path=/usr/src/mash/mash/.libs/:' mash/Makefile.am
+    sed -i 's:--library=mash-@MASH_API_VERSION@:--library=mash-@MASH_API_VERSION@ \ --library-path=/usr/src/mash/mash/.libs/:' mash/Makefile.am
     make
     make install
 }
@@ -119,7 +167,6 @@ install_toggle() {
     cd /usr/src
     git clone https://bitbucket.org/intelligentagent/toggle
     cd toggle
-    make libtoggle
     python setup.py install
 }
 
@@ -151,7 +198,6 @@ create_user() {
 
 
 other() {
-
     sed -i s/#dtb=$/dtb=am335x-boneblack-replicape.dtb/ /boot/uEnv.txt
     sed -i s/cape_universal=enable// /boot/uEnv.txt
 }
@@ -170,12 +216,18 @@ install_octoprint
 post_octoprint
 install_overlays
 install_sgx
+install_libinput
+install_cogl
+install_glib
+install_clutter
+install_mx
 install_mash
 install_toggle
 post_toggle
 post_cura
+
 #other
 
 echo "Rebooting"
-reboot
+#reboot
 
