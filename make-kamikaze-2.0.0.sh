@@ -1,13 +1,15 @@
 #!/bin/bash
 
-# TODO:
-# Make redeem dependencies built into redeem
+# TODO 2.1: 
 # PCA9685 in devicetree
+
+# TODO 2.0:
+# Make redeem dependencies built into redeem
 # Custom uboot
 # sgx-install after changing kernel
 
 # STAGING: 
-# Adafruit lib disregard overlay (Swit
+# Adafruit lib disregard overlay (Swithed to spidev)
 # consoleblank=0
 
 # DONE: 
@@ -124,6 +126,7 @@ install_sgx() {
 	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
 	cd /opt/gfxinstall/
 	./sgx-install.sh
+	depmod -a 4.4.20-bone13
 }
 
 install_glib() {
@@ -134,7 +137,7 @@ install_glib() {
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
 	make
 	make install
-	rf /lib/arm-linux-gnueabihf/libglib-2.0.so.0
+	rm /lib/arm-linux-gnueabihf/libglib-2.0.so.0
 	ln -s /usr/lib/arm-linux-gnueabihf/libglib-2.0.so.0.4800.2 /lib/arm-linux-gnueabihf/libglib-2.0.so.0
 }
 
@@ -174,6 +177,7 @@ install_clutter() {
 install_mx() {
 	cd /usr/src
 	git clone https://github.com/clutter-project/mx.git
+	cd mx
 	./autogen.sh --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --with-winsys=none --disable-gtk-doc --enable-introspection
 	make
 	make install
