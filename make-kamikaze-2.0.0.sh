@@ -40,7 +40,12 @@ install_dependencies(){
 	gobject-introspection \
 	python-gobject \
 	libgirepository1.0-dev \
-	python-cairo               
+	python-cairo \
+	libgdk-pixbuf2.0-dev \
+	libgles2-mesa-dev \
+	libcairo2-dev \
+	libpangocairo-1.0-0 \
+	libpango1.0-dev
 	pip install evdev
 	pip install spidev
 }
@@ -133,6 +138,7 @@ install_libinput() {
 }
 
 install_cogl() {
+	# Fails: Unable to locate GLES2/gl2.h
 	cd /usr/src
 	wget http://ftp.gnome.org/pub/GNOME/sources/cogl/1.22/cogl-1.22.2.tar.xz
 	tar xf cogl-1.22.2.tar.xz
@@ -145,6 +151,7 @@ install_cogl() {
 
 
 install_clutter() {
+	#gdk-pixbuf-2.0
 	cd /usr/src
 	wget http://ftp.acc.umu.se/pub/GNOME/sources/clutter/1.26/clutter-1.26.0.tar.xz
 	tar xf clutter-1.26.0.tar.xz
@@ -206,8 +213,8 @@ create_user() {
 }
 
 other() {
-    sed -i s/cape_universal=enable/consoleblank=0 fbcon=rotate:1/ /boot/uEnv.txt	
-	sed -i s/beaglebone/kamikaze/ /etc/hostname
+    sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1/' /boot/uEnv.txt	
+	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 }
 
 
