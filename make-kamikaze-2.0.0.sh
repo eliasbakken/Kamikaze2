@@ -49,7 +49,11 @@ install_dependencies(){
 	libpango1.0-dev \
 	libatk1.0-dev \
 	libjson-glib-dev \
-	libevdev-dev
+	libgudev-1.0-dev \
+	libevdev-dev \
+	libxkbcommon-dev \
+	libmtdev-dev \
+	libudev-dev
 	pip install evdev
 	pip install spidev
 }
@@ -137,6 +141,8 @@ install_glib() {
 install_libinput() {
 	cd /usr/src
 	wget http://www.freedesktop.org/software/libinput/libinput-1.0.0.tar.xz
+	tar xf libinput-1.0.0.tar.xz
+	cd libinput-1.0.0
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
 	make
 	make install
