@@ -3,6 +3,8 @@
 # TODO:
 # Make redeem dependencies built into redeem
 # Adafruit lib disregard overlay
+# PCA9685 in devicetree
+
 
 echo "Making Kamikaze 2.0.0"
 
@@ -41,7 +43,7 @@ install_redeem() {
         git clone https://bitbucket.org/intelligentagent/redeem
         cd redeem
         git checkout develop
-        python setup.py install
+        make install
 }
 
 post_redeem() {
@@ -103,6 +105,17 @@ install_sgx() {
         ./sgx-install.sh
 }
 
+install_glib() {
+	cd /usr/src
+	wget http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.2.tar.xz
+	tar xf glib-2.48.2.tar.xz
+	cd glib-2.48.2/
+	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
+	make
+	make install
+	export LD_LIBRARY_PATH=/usr/lib/arm-linux-gnueabihf/
+}
+
 install_libinput() {
 	cd /usr/src
 	wget http://www.freedesktop.org/software/libinput/libinput-1.0.0.tar.xz
@@ -116,22 +129,12 @@ install_cogl() {
 	wget http://ftp.gnome.org/pub/GNOME/sources/cogl/1.22/cogl-1.22.2.tar.xz
 	tar xf cogl-1.22.2.tar.xz
 	cd cogl-1.22.2/
-	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --disable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
+	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --enable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
 	sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' cogl/winsys/cogl-winsys-egl.c 
 	make
 	make install
 }
 
-install_glib() {
-	cd /usr/src
-	wget http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.2.tar.xz
-	tar xf glib-2.48.2.tar.xz
-	cd glib-2.48.2/
-	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
-	make
-	make install
-	export LD_LIBRARY_PATH=/usr/lib/arm-linux-gnueabihf/
-}
 
 install_clutter() {
 	cd /usr/src
@@ -165,7 +168,7 @@ install_toggle() {
     cd /usr/src
     git clone https://bitbucket.org/intelligentagent/toggle
     cd toggle
-    python setup.py install
+    make install
 }
 
 post_toggle() {
