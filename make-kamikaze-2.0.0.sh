@@ -3,10 +3,14 @@
 # TODO:
 # Make redeem dependencies built into redeem
 # PCA9685 in devicetree
+# Custom uboot
 
 # STAGING: 
 # Adafruit lib disregard overlay (Swit
 # consoleblank=0
+
+# DONE: 
+
 
 echo "Making Kamikaze 2.0.0"
 
@@ -55,7 +59,7 @@ post_redeem() {
 	mkdir -p /etc/redeem
 	cp configs/*.cfg /etc/redeem/
 	cp data/*.cht /etc/redeem/
-	touch /ect/redeem/local.cfg
+	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
 
 	# Install systemd script
@@ -200,7 +204,6 @@ create_user() {
     chown -R octo:octo /usr/local/bin
     chmod 755 -R /usr/local/lib/python2.7/dist-packages
 }
-
 
 other() {
     sed -i s/cape_universal=enable/consoleblank=0 fbcon=rotate:1/ /boot/uEnv.txt	
