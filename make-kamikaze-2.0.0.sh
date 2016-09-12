@@ -177,7 +177,7 @@ install_mash() {
 	cd /usr/src/mash
 	./autogen.sh --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection
 	sed -i 's:--library=mash-@MASH_API_VERSION@:--library=mash-@MASH_API_VERSION@ \ --library-path=/usr/src/mash/mash/.libs/:' mash/Makefile.am
-	make
+	make CFLAGS="`pkg-config --cflags clutter-1.0`"
 	make install
 }
 
