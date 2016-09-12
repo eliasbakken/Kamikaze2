@@ -55,7 +55,8 @@ install_dependencies(){
 	libevdev-dev \
 	libxkbcommon-dev \
 	libmtdev-dev \
-	libudev-dev
+	libudev-dev \
+	python-scipy
 	pip install evdev
 	pip install spidev
 }
@@ -131,6 +132,7 @@ install_sgx() {
 
 install_glib() {
 	cd /usr/src
+	if [ ! -d "$DIRECTORY" ]; then
 	wget http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.2.tar.xz
 	tar xf glib-2.48.2.tar.xz
 	cd glib-2.48.2/
@@ -164,7 +166,6 @@ install_cogl() {
 
 
 install_clutter() {
-	#no evdev input backend
 	cd /usr/src
 	wget http://ftp.acc.umu.se/pub/GNOME/sources/clutter/1.26/clutter-1.26.0.tar.xz
 	tar xf clutter-1.26.0.tar.xz
@@ -227,7 +228,7 @@ create_user() {
 }
 
 other() {
-    sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1/' /boot/uEnv.txt	
+    sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt	
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 }
 
