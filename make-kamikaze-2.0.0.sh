@@ -4,6 +4,7 @@
 # Make redeem dependencies built into redeem
 # PCA9685 in devicetree
 # Custom uboot
+# sgx-install after changing kernel
 
 # STAGING: 
 # Adafruit lib disregard overlay (Swit
@@ -47,7 +48,8 @@ install_dependencies(){
 	libpangocairo-1.0-0 \
 	libpango1.0-dev \
 	libatk1.0-dev \
-	libjson-glib-dev 
+	libjson-glib-dev \
+	libevdev-dev
 	pip install evdev
 	pip install spidev
 }
@@ -128,7 +130,8 @@ install_glib() {
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
 	make
 	make install
-	export LD_LIBRARY_PATH=/usr/lib/arm-linux-gnueabihf/
+	rf /lib/arm-linux-gnueabihf/libglib-2.0.so.0
+	ln -s /usr/lib/arm-linux-gnueabihf/libglib-2.0.so.0.4800.2 /lib/arm-linux-gnueabihf/libglib-2.0.so.0
 }
 
 install_libinput() {
@@ -140,7 +143,6 @@ install_libinput() {
 }
 
 install_cogl() {
-	# Fails: Unable to locate GLES2/gl2.h
 	cd /usr/src
 	wget http://ftp.gnome.org/pub/GNOME/sources/cogl/1.22/cogl-1.22.2.tar.xz
 	tar xf cogl-1.22.2.tar.xz
@@ -153,7 +155,7 @@ install_cogl() {
 
 
 install_clutter() {
-	#gdk-pixbuf-2.0
+	#no evdev input backend
 	cd /usr/src
 	wget http://ftp.acc.umu.se/pub/GNOME/sources/clutter/1.26/clutter-1.26.0.tar.xz
 	tar xf clutter-1.26.0.tar.xz
