@@ -45,7 +45,9 @@ install_dependencies(){
 	libgles2-mesa-dev \
 	libcairo2-dev \
 	libpangocairo-1.0-0 \
-	libpango1.0-dev
+	libpango1.0-dev \
+	libatk1.0-dev \
+	libjson-glib-dev 
 	pip install evdev
 	pip install spidev
 }
