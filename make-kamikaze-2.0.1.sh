@@ -162,6 +162,7 @@ install_cogl() {
 	apt-get source -y -t testing cogl
 	cd cogl-1.22.2/
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --enable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
+    sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' winsys/cogl-winsys-egl.c
 	make
 	make install
 }
