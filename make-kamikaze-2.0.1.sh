@@ -22,7 +22,7 @@ echo "Making Kamikaze 2.0.1"
 export LC_ALL=C
 
 enable_sources() {
-    sed -i 's:#deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free:deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free:' /etc/apt/sources.list
+    sed -i 's%#deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free%deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free%' /etc/apt/sources.list
 }
 
 stop_services() {
