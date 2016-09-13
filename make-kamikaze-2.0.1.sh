@@ -19,40 +19,6 @@ echo "Making Kamikaze 2.0.1"
 
 export LC_ALL=C
 
-add_testing_branch() {
-	cat >/etc/apt/preferences.d/security.pref <<EOL
-Package: *
-Pin: release l=Debian-Security
-Pin-Priority: 1000
-EOL
-	cat >/etc/apt/preferences.d/stable.pref <<EOL
-Package: *
-Pin: release a=stable
-Pin-Priority: 900
-EOL
-	cat >/etc/apt/preferences.d/testing.pref <<EOL
-Package: *
-Pin: release a=testing
-Pin-Priority: 750
-EOL
-	cat >/etc/apt/preferences.d/unstable.pref <<EOL
-Package: *
-Pin: release a=unstable
-Pin-Priority: 50
-EOL
-	cat >/etc/apt/preferences.d/experimental.pref <<EOL
-Package: *
-Pin: release a=experimental
-Pin-Priority: 1
-EOL
-
-	cat >/etc/apt/sources.list.d/testing.list <<EOL
-deb http://httpredir.debian.org/debian/ testing main contrib non-free
-deb-src http://httpredir.debian.org/debian/ testing main contrib non-free
-EOL
-
-}
-
 stop_services() {
 	systemctl disable apache2
 	systemctl stop apache2
@@ -81,8 +47,8 @@ install_dependencies(){
 	libgles2-mesa-dev \
 	libpangocairo-1.0-0 \
 	libevdev-dev \
-	libmtdev-dev
-    apt-get install -y -t testing python-scipy
+	libmtdev-dev \
+    python-scipy
 	pip install evdev
 	pip install spidev
 }
@@ -158,20 +124,20 @@ install_sgx() {
 
 install_cogl() {
 	cd /usr/src
-	apt-get build-dep -y -t testing cogl
-	apt-get source -y -t testing cogl
-	cd cogl-1.22.2/
+	apt-get build-dep -y cogl
+	apt-get source -y cogl
+	cd cogl-1.18.2-3/
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --enable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
-    sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' winsys/cogl-winsys-egl.c
+    sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' cogl/winsys/cogl-winsys-egl.c
 	make
 	make install
 }
 
 install_clutter() {
 	cd /usr/src
-	#apt-get build-dep -t testing clutter
-	apt-get source -y -t testing clutter-1.0
-	cd clutter-1.0-1.26.0
+	apt-get build-dep clutter-1.0
+	apt-get source -y  clutter-1.0
+	cd clutter-1.0-1.20.0-1
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend
 	make
 	make install
@@ -234,7 +200,6 @@ other() {
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 }
 
-add_testing_branch
 stop_services
 install_dependencies
 install_redeem
