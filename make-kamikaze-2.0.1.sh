@@ -6,9 +6,9 @@
 # TODO 2.0:
 # Make redeem dependencies built into redeem
 # Custom uboot
-# sgx-install after changing kernel
 
 # STAGING: 
+# sgx-install after changing kernel
 # Adafruit lib disregard overlay (Swithed to spidev)
 # consoleblank=0
 
@@ -81,8 +81,8 @@ install_dependencies(){
 	libgles2-mesa-dev \
 	libpangocairo-1.0-0 \
 	libevdev-dev \
-	libmtdev-dev \
-	python-scipy
+	libmtdev-dev
+    apt-get install -y -t testing python-scipy
 	pip install evdev
 	pip install spidev
 }
@@ -158,8 +158,8 @@ install_sgx() {
 
 install_cogl() {
 	cd /usr/src
-	apt-get build-dep -t testing cogl
-	apt-get source -t testing cogl
+	apt-get build-dep -y -t testing cogl
+	apt-get source -y -t testing cogl
 	cd cogl-1.22.2/
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --enable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
 	make
@@ -169,7 +169,7 @@ install_cogl() {
 install_clutter() {
 	cd /usr/src
 	#apt-get build-dep -t testing clutter
-	apt-get source -t testing clutter
+	apt-get source -y -t testing clutter-1.0
 	cd clutter-1.0-1.26.0
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend
 	make
@@ -233,7 +233,7 @@ other() {
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 }
 
-
+add_testing_branch
 stop_services
 install_dependencies
 install_redeem
