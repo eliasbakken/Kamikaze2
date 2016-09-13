@@ -2,9 +2,11 @@
 
 # TODO 2.1: 
 # PCA9685 in devicetree
-
-# TODO 2.0:
 # Make redeem dependencies built into redeem
+
+# TODO 2.0.1:
+# moprobe omaplfb
+# OctoPrint not starting
 # Custom uboot
 
 # STAGING: 
@@ -18,6 +20,10 @@
 echo "Making Kamikaze 2.0.1"
 
 export LC_ALL=C
+
+enable_sources() {
+    sed -i 's:#deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free:deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free:' /etc/apt/sources.list
+}
 
 stop_services() {
 	systemctl disable apache2
@@ -126,7 +132,7 @@ install_cogl() {
 	cd /usr/src
 	apt-get build-dep -y cogl
 	apt-get source -y cogl
-	cd cogl-1.18.2-3/
+	cd cogl-1.18.2/
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --enable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
     sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' cogl/winsys/cogl-winsys-egl.c
 	make
@@ -135,9 +141,9 @@ install_cogl() {
 
 install_clutter() {
 	cd /usr/src
-	apt-get build-dep clutter-1.0
+	apt-get build-dep -y clutter-1.0
 	apt-get source -y  clutter-1.0
-	cd clutter-1.0-1.20.0-1
+	cd clutter-1.0-1.20.0
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend
 	make
 	make install
@@ -200,6 +206,7 @@ other() {
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 }
 
+enable_sources
 stop_services
 install_dependencies
 install_redeem
