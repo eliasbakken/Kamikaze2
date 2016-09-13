@@ -15,7 +15,7 @@
 # DONE: 
 
 
-echo "Making Kamikaze 2.0.0"
+echo "Making Kamikaze 2.0.1"
 
 export LC_ALL=C
 
@@ -46,7 +46,10 @@ Pin: release a=experimental
 Pin-Priority: 1
 EOL
 
-
+	cat >/etc/apt/sources.list.d/testing.list <<EOL
+deb http://httpredir.debian.org/debian/ testing main contrib non-free
+deb-src http://httpredir.debian.org/debian/ testing main contrib non-free
+EOL
 
 }
 
@@ -64,7 +67,7 @@ stop_services() {
 install_dependencies(){
 	apt-get update --fix-missing
 	apt-get upgrade -y
-	apt-get install -y python-numpy \
+	apt-get install -y \
 	swig \
 	cura-engine \
 	iptables-persistent \
@@ -75,18 +78,10 @@ install_dependencies(){
 	python-gobject \
 	libgirepository1.0-dev \
 	python-cairo \
-	libgdk-pixbuf2.0-dev \
 	libgles2-mesa-dev \
-	libcairo2-dev \
 	libpangocairo-1.0-0 \
-	libpango1.0-dev \
-	libatk1.0-dev \
-	libjson-glib-dev \
-	libgudev-1.0-dev \
 	libevdev-dev \
-	libxkbcommon-dev \
 	libmtdev-dev \
-	libudev-dev \
 	python-scipy
 	pip install evdev
 	pip install spidev
@@ -161,46 +156,21 @@ install_sgx() {
 	depmod -a 4.4.20-bone13
 }
 
-install_glib() {
-	cd /usr/src
-	if [ ! -d "$DIRECTORY" ]; then
-	wget http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.2.tar.xz
-	tar xf glib-2.48.2.tar.xz
-	cd glib-2.48.2/
-	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
-	make
-	make install
-	rm /lib/arm-linux-gnueabihf/libglib-2.0.so.0
-	ln -s /usr/lib/arm-linux-gnueabihf/libglib-2.0.so.0.4800.2 /lib/arm-linux-gnueabihf/libglib-2.0.so.0
-}
-
-install_libinput() {
-	cd /usr/src
-	wget http://www.freedesktop.org/software/libinput/libinput-1.0.0.tar.xz
-	tar xf libinput-1.0.0.tar.xz
-	cd libinput-1.0.0
-	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
-	make
-	make install
-}
-
 install_cogl() {
 	cd /usr/src
-	wget http://ftp.gnome.org/pub/GNOME/sources/cogl/1.22/cogl-1.22.2.tar.xz
-	tar xf cogl-1.22.2.tar.xz
+	apt-get build-dep -t testing cogl
+	apt-get source -t testing cogl
 	cd cogl-1.22.2/
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --enable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
-	sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' cogl/winsys/cogl-winsys-egl.c 
 	make
 	make install
 }
-
 
 install_clutter() {
 	cd /usr/src
-	wget http://ftp.acc.umu.se/pub/GNOME/sources/clutter/1.26/clutter-1.26.0.tar.xz
-	tar xf clutter-1.26.0.tar.xz
-	cd clutter-1.26.0
+	#apt-get build-dep -t testing clutter
+	apt-get source -t testing clutter
+	cd clutter-1.0-1.26.0
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend
 	make
 	make install
@@ -273,8 +243,6 @@ install_octoprint
 post_octoprint
 install_overlays
 install_sgx
-install_libinput
-install_glib
 install_cogl
 install_clutter
 install_mx
