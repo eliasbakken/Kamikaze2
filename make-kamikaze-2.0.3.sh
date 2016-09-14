@@ -89,7 +89,7 @@ install_dependencies(){
 	libyaml-dev \
 	libmtdev-dev 
 	apt-get install -y -t testing python-scipy
-	apt-get install -t testing python-gi-cairo
+	apt-get install -y -t testing python-gi-cairo
 	pip install evdev
 	pip install spidev
 }
@@ -199,7 +199,7 @@ install_sgx() {
 	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
 	cd /opt/gfxinstall/
 	./sgx-install.sh
-	cd /usr/src/Kamkaize2/
+	cd /usr/src/Kamikaze2/
 	cp sgx-startup.service /lib/systemd/system/
 	systemctl enable sgx-startup.service
 	depmod -a 4.4.20-bone13
@@ -296,8 +296,6 @@ all() {
 	install_octoprint_toggle
 	install_overlays
 	install_sgx
-	install_libinput
-	install_glib
 	install_cogl
 	install_clutter
 	install_mx
