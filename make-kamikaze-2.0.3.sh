@@ -200,7 +200,7 @@ install_sgx() {
 	cd /opt/gfxinstall/
 	./sgx-install.sh
 	cd /usr/src/Kamikaze2/
-	cp sgx-startup.service /lib/systemd/system/
+	cp scripts/sgx-startup.service /lib/systemd/system/
 	systemctl enable sgx-startup.service
 	depmod -a 4.4.20-bone13
 }
@@ -222,7 +222,7 @@ install_clutter() {
 	apt-get build-dep -y -t testing clutter-1.0
 	apt-get source -y -t testing clutter-1.0
 	cd clutter-1.0-1.26.0
-	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend
+	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend --disable-wayland-backend
 	make
 	make install
 }
