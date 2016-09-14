@@ -2,9 +2,9 @@
 
 # TODO 2.1: 
 # PCA9685 in devicetree
+# Make redeem dependencies built into redeem
 
 # TODO 2.0:
-# Make redeem dependencies built into redeem
 # Custom uboot
 # sgx-install after changing kernel
 
@@ -35,19 +35,6 @@ Package: *
 Pin: release a=testing
 Pin-Priority: 750
 EOL
-	cat >/etc/apt/preferences.d/unstable.pref <<EOL
-Package: *
-Pin: release a=unstable
-Pin-Priority: 50
-EOL
-	cat >/etc/apt/preferences.d/experimental.pref <<EOL
-Package: *
-Pin: release a=experimental
-Pin-Priority: 1
-EOL
-
-
-
 }
 
 stop_services() {

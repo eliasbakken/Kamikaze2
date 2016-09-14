@@ -4,26 +4,44 @@
 # PCA9685 in devicetree
 # Make redeem dependencies built into redeem
 
-# TODO 2.0.1:
-# moprobe omaplfb
-# OctoPrint not starting
+# TODO 2.0:
 # Custom uboot
+# sgx-install after changing kernel
 
 # STAGING: 
-# sgx-install after changing kernel
 # Adafruit lib disregard overlay (Swithed to spidev)
 # consoleblank=0
 
 # DONE: 
 
 
-echo "Making Kamikaze 2.0.1"
+echo "Making Kamikaze 2.0.3"
 
 export LC_ALL=C
 
-enable_sources() {
-    sed -i 's%#deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free%deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free%' /etc/apt/sources.list
-    
+add_testing_branch() {
+	cat >/etc/apt/preferences.d/security.pref <<EOL
+Package: *
+Pin: release l=Debian-Security
+Pin-Priority: 1000
+EOL
+	cat >/etc/apt/preferences.d/stable.pref <<EOL
+Package: *
+Pin: release a=stable
+Pin-Priority: 900
+EOL
+	cat >/etc/apt/preferences.d/testing.pref <<EOL
+Package: *
+Pin: release a=testing
+Pin-Priority: 750
+EOL
+
+    cat >> /etc/apt/sources.list <<EOL
+#### testing/Stretch  #########
+deb http://httpredir.debian.org/debian/ testing main contrib non-free
+deb-src http://httpredir.debian.org/debian/ testing main contrib non-free
+EOL
+
 }
 
 stop_services() {
@@ -40,7 +58,7 @@ stop_services() {
 install_dependencies(){
 	apt-get update --fix-missing
 	apt-get upgrade -y
-	apt-get install -y \
+	apt-get install -y python-numpy \
 	swig \
 	cura-engine \
 	iptables-persistent \
@@ -51,11 +69,19 @@ install_dependencies(){
 	python-gobject \
 	libgirepository1.0-dev \
 	python-cairo \
+	libgdk-pixbuf2.0-dev \
 	libgles2-mesa-dev \
+	libcairo2-dev \
 	libpangocairo-1.0-0 \
+	libpango1.0-dev \
+	libatk1.0-dev \
+	libjson-glib-dev \
+	libgudev-1.0-dev \
 	libevdev-dev \
+	libxkbcommon-dev \
 	libmtdev-dev \
-    python-scipy
+	libudev-dev
+	apt-get install -y -t testing python-scipy
 	pip install evdev
 	pip install spidev
 }
@@ -131,20 +157,21 @@ install_sgx() {
 
 install_cogl() {
 	cd /usr/src
-	apt-get build-dep -y cogl
-	apt-get source -y cogl
-	cd cogl-1.18.2/
+    apt-get build-dep -y -t testing cogl
+    apt-get source -y -t testing cogl
+	cd cogl-1.22.2/
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --enable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
-    sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' cogl/winsys/cogl-winsys-egl.c
+	sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' cogl/winsys/cogl-winsys-egl.c 
 	make
 	make install
 }
 
+
 install_clutter() {
 	cd /usr/src
-	apt-get build-dep -y clutter-1.0
-	apt-get source -y  clutter-1.0
-	cd clutter-1.0-1.20.0
+    apt-get build-dep -y -t testing clutter-1.0
+    apt-get source -y -t testing clutter-1.0
+	cd clutter-1.26.0
 	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend
 	make
 	make install
@@ -207,7 +234,7 @@ other() {
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 }
 
-enable_sources
+add_testing_branch
 stop_services
 install_dependencies
 install_redeem
@@ -217,6 +244,8 @@ install_octoprint
 post_octoprint
 install_overlays
 install_sgx
+install_libinput
+install_glib
 install_cogl
 install_clutter
 install_mx
