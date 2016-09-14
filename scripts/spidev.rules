@@ -1,0 +1,1 @@
+KERNEL=="spidev2.1", TAG+="systemd", SYMLINK+="steppers"

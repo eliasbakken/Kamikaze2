@@ -1,0 +1,15 @@
+[Unit]
+After=multi-user.target
+
+[Service]
+RemainAfterExit=true
+ExecStartPre=/sbin/modprobe pvrsrvkm
+ExecStart=/usr/local/bin/pvrsrvctl --no-module --start
+ExecStartPost=/sbin/modprobe omaplfb
+ExecStop=/sbin/modprobe -r omaplfb
+ExecStop=/usr/local/bin/pvrsrvctl --stop
+ExecStop=/sbin/modprobe -r pvrsrvkm
+
+[Install]
+WantedBy=graphical.target
+
