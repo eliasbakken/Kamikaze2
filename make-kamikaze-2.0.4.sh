@@ -19,28 +19,11 @@
 # sgx-install after changing kernel
 
 
-echo "**Making Kamikaze 2.0.3**"
+echo "**Making Kamikaze 2.0.4**"
 
 export LC_ALL=C
 
 add_testing_branch() {
-    sed -i 's%#deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free%deb-src http://httpredir.debian.org/debian/ jessie main contrib non-free%' /etc/apt/sources.list
-	cat >/etc/apt/preferences.d/security.pref <<EOL
-Package: *
-Pin: release l=Debian-Security
-Pin-Priority: 1000
-EOL
-	cat >/etc/apt/preferences.d/stable.pref <<EOL
-Package: *
-Pin: release a=stable
-Pin-Priority: 900
-EOL
-	cat >/etc/apt/preferences.d/testing.pref <<EOL
-Package: *
-Pin: release a=testing
-Pin-Priority: 750
-EOL
-
     cat >/etc/apt/sources.list.d/testing.list <<EOL
 #### testing/Stretch  #########
 deb http://httpredir.debian.org/debian/ testing main contrib non-free
