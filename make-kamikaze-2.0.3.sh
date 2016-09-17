@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This is the source version 
+
 # TODO 2.1: 
 # PCA9685 in devicetree
 # Make redeem dependencies built into redeem

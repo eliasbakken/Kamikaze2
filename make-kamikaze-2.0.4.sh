@@ -24,10 +24,35 @@ echo "**Making Kamikaze 2.0.4**"
 export LC_ALL=C
 
 add_testing_branch() {
+	cat >/etc/apt/preferences.d/security.pref <<EOL
+Package: *
+Pin: release l=Debian-Security
+Pin-Priority: 1000
+EOL
+	cat >/etc/apt/preferences.d/stable.pref <<EOL
+Package: *
+Pin: release a=stable
+Pin-Priority: 900
+EOL
+	cat >/etc/apt/preferences.d/testing.pref <<EOL
+Package: *
+Pin: release a=testing
+Pin-Priority: 750
+EOL
+
+    cat >/etc/apt/preferences.d/stretch.pref <<EOL
+Package: *
+Pin: origin "kamikaze.thing-printer.com"
+Pin-Priority: 999
+EOL
+
     cat >/etc/apt/sources.list.d/testing.list <<EOL
 #### testing/Stretch  #########
 deb http://httpredir.debian.org/debian/ testing main contrib non-free
 deb-src http://httpredir.debian.org/debian/ testing main contrib non-free
+
+#### Kamikaze ####  
+deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
 EOL
 
 }
@@ -86,13 +111,15 @@ install_dependencies(){
 	iptables-persistent \
 	socat \
 	ti-sgx-es8-modules-4.4.20-bone13 \
-	libyaml-dev 
+	libyaml-dev \
+    libmx-2.0.0 \
+    libmash-0.3-0 \
+    gir1.2-mash-0.3-0 \
+    gir1.2-mx-2.0
 	apt-get install -y -t testing python-scipy
 	apt-get install -y -t testing python-gi-cairo
 	pip install evdev
 	pip install spidev
-
-
 }
 
 install_redeem() {
@@ -206,7 +233,7 @@ install_sgx() {
 	depmod -a 4.4.20-bone13
 }
 
-install_cogl_src() {
+install_cogl() {
 	cd /usr/src
 	apt-get build-dep -y -t testing cogl
 	apt-get source -y -t testing cogl
@@ -217,13 +244,8 @@ install_cogl_src() {
 	make install
 }
 
-install_cogl() {
-	apt-get install libcogl20
-}
 
-
-
-install_clutter_src() {
+install_clutter() {
 	cd /usr/src
 	apt-get build-dep -y -t testing clutter-1.0
 	apt-get source -y -t testing clutter-1.0
@@ -233,9 +255,6 @@ install_clutter_src() {
 	make install
 }
 
-install_clutter() {
-	apt-get install -t testing libclutter-1.0-0
-}
 
 install_mx() {
 	cd /usr/src
@@ -289,11 +308,37 @@ install_uboot() {
 other() {
 	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt	
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
-	# TODO: sudo: unable to resolve host kamikaze
+	sed -i 's/beaglebone/kamikaze/g' /etc/hosts
+    sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
 }
 
 
-all() {
+
+dist() {
+    add_testing_branch
+	stop_services
+	install_dependencies
+	install_redeem
+	post_redeem
+	create_user
+	install_octoprint
+	post_octoprint
+	install_octoprint_redeem
+	install_octoprint_toggle
+	install_overlays
+	install_sgx
+	install_toggle
+	post_toggle
+	post_cura
+	install_uboot
+	other
+
+
+}
+
+# Use this for recreating 
+# the build environment
+src() {
 	add_testing_branch
 	stop_services
 	install_dependencies
@@ -317,7 +362,7 @@ all() {
 	other
 }
 
-all
+dist
 
 echo "Now reboot!"
 
