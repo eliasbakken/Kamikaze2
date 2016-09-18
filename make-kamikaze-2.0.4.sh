@@ -55,6 +55,7 @@ deb-src http://httpredir.debian.org/debian/ testing main contrib non-free
 deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
 EOL
 
+wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | sudo apt-key add -
 }
 
 stop_services() {
@@ -111,7 +112,9 @@ install_dependencies(){
 	iptables-persistent \
 	socat \
 	ti-sgx-es8-modules-4.4.20-bone13 \
-	libyaml-dev \
+	libyaml-dev
+    apt-get install -t testing -y libclutter-1.0-0
+    apt-get install -y \
     libmx-2.0.0 \
     libmash-0.3-0 \
     gir1.2-mash-0.3-0 \
