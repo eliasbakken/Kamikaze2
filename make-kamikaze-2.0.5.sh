@@ -19,49 +19,11 @@
 # sgx-install after changing kernel
 
 
-echo "**Making Kamikaze 2.0.4**"
+echo "**Making Kamikaze 2.0.5**"
 
 export LC_ALL=C
 
-add_testing_branch() {
-    sed -i 's/jessie/stretch/' /etc/apt/sources.list
-
-
-	cat >/etc/apt/preferences.d/security.pref <<EOL
-Package: *
-Pin: release l=Debian-Security
-Pin-Priority: 1000
-EOL
-	cat >/etc/apt/preferences.d/stable.pref <<EOL
-Package: *
-Pin: release a=stable
-Pin-Priority: 900
-EOL
-	cat >/etc/apt/preferences.d/testing.pref <<EOL
-Package: *
-Pin: release a=testing
-Pin-Priority: 750
-EOL
-
-    cat >/etc/apt/preferences.d/stretch.pref <<EOL
-Package: *
-Pin: origin "kamikaze.thing-printer.com"
-Pin-Priority: 999
-EOL
-
-    cat >/etc/apt/sources.list.d/testing.list <<EOL
-#### testing/Stretch  #########
-deb http://httpredir.debian.org/debian/ testing main contrib non-free
-deb-src http://httpredir.debian.org/debian/ testing main contrib non-free
-
-#### Kamikaze ####  
-deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
-EOL
-
-wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | sudo apt-key add -
-}
-
-stop_services() {
+remove_unneeded_packages() {
     apt-get purge \
     bone101 nodejs \
     apache2 apache2-bin \
@@ -76,43 +38,22 @@ stop_services() {
     rm -rf /usr/lib/node_modules/
 }
 
-install_dependencies_src(){
-	apt-get update --fix-missing
-	apt-get upgrade -y
-	apt-get install -y \
-	swig \
-	cura-engine \
-	iptables-persistent \
-	socat \
-	ti-sgx-es8-modules-4.4.20-bone13 \
-	gnome-common gtk-doc-tools \
-	gobject-introspection \
-	python-gobject \
-	libgirepository1.0-dev \
-	python-cairo \
-	libgdk-pixbuf2.0-dev \
-	libgles2-mesa-dev \
-	libcairo2-dev \
-	libpangocairo-1.0-0 \
-	libpango1.0-dev \
-	libatk1.0-dev \
-	libjson-glib-dev \
-	libgudev-1.0-dev \
-	libevdev-dev \
-	libxkbcommon-dev \
-	gir1.2-gtk-3.0 \
-	libgtk-3-0 \
-	libyaml-dev \
-	libmtdev-dev 
-	apt-get install -y -t testing python-scipy
-	apt-get install -y -t testing python-gi-cairo
-	pip install evdev
-	pip install spidev
+
+upgrade_to_stretch() {
+    sed -i 's/jessie/stretch/' /etc/apt/sources.list
+
+    cat >/etc/apt/sources.list.d/testing.list <<EOL
+#### Kamikaze ####  
+deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
+EOL
+
+    wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | sudo apt-key add -
+	apt-get update
+    apt-get upgrade -y
 }
 
+
 install_dependencies(){
-	apt-get update --fix-missing
-	apt-get upgrade -y
 	apt-get install -y \
 	swig \
 	cura-engine \
@@ -120,27 +61,26 @@ install_dependencies(){
 	socat \
 	ti-sgx-es8-modules-4.4.20-bone13 \
 	libyaml-dev
-    apt-get install -t testing -y libclutter-1.0-0
-    apt-get install -y \
     gir1.2-mash-0.3-0 \
-    gir1.2-mx-2.0
-	apt-get install -y -t testing python-scipy
-	apt-get install -y -t testing python-gi-cairo
+    gir1.2-mx-2.0 \
+    python-scipy \
+    python-gi-cairo
 	pip install evdev
 	pip install spidev
 }
 
 install_redeem() {
+    echo "**install_octoprint_redeem**" 
 	cd /usr/src/
-	git clone https://bitbucket.org/intelligentagent/redeem
+    if [ ! -d "redeem" ]; then
+	    git clone https://bitbucket.org/intelligentagent/redeem
+    fi    
 	cd redeem
+    git pull
 	git checkout develop
 	make install
-}
 
-post_redeem() {
-	cd /usr/src/redeem
-	# Make profiles uploadable via Octoprint
+    # Make profiles uploadable via Octoprint
 	mkdir -p /etc/redeem
 	cp configs/*.cfg /etc/redeem/
 	cp data/*.cht /etc/redeem/
@@ -285,7 +225,9 @@ install_mash() {
 
 install_toggle() {
 	cd /usr/src
-	git clone https://bitbucket.org/intelligentagent/toggle
+    if [ ! -d "octoprint_toggle" ]; then
+	    git clone https://bitbucket.org/intelligentagent/toggle
+    fi
 	cd toggle
 	make install
 }
@@ -323,11 +265,10 @@ other() {
 
 
 dist() {
-    add_testing_branch
-	stop_services
+    remove_unneeded_packages
+    upgrade_to_stretch    
 	install_dependencies
 	install_redeem
-	post_redeem
 	create_user
 	install_octoprint
 	post_octoprint
@@ -344,31 +285,6 @@ dist() {
 
 }
 
-# Use this for recreating 
-# the build environment
-src() {
-	add_testing_branch
-	stop_services
-	install_dependencies
-	install_redeem
-	post_redeem
-	create_user
-	install_octoprint
-	post_octoprint
-	install_octoprint_redeem
-	install_octoprint_toggle
-	install_overlays
-	install_sgx
-	install_cogl
-	install_clutter
-	install_mx
-	install_mash
-	install_toggle
-	post_toggle
-	post_cura
-	install_uboot
-	other
-}
 
 dist
 
