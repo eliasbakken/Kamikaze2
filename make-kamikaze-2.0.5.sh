@@ -5,14 +5,13 @@
 # Make redeem dependencies built into redeem
 
 # TODO 2.0:
-# cura engine
-# iptables-persistent
-# clear cache
 
 # STAGING: 
 # redeem starts after spidev2.1
-#  fatal error: yaml.h: No such file or directory
 # Adafruit lib disregard overlay (Swithed to spidev)
+# cura engine
+# iptables-persistent
+# clear cache
 
 # DONE: 
 # consoleblank=0
@@ -20,6 +19,7 @@
 # Custom uboot
 # redeem plugin
 # Toggle plugin
+#  fatal error: yaml.h: No such file or directory
 
 
 echo "**Making Kamikaze 2.0.5**"
@@ -27,6 +27,8 @@ echo "**Making Kamikaze 2.0.5**"
 export LC_ALL=C
 
 remove_unneeded_packages() {
+    echo "** Remove unneded packages **" 
+
     rm -rf /etc/apache2/sites-enabled
     rm -rf /root/.c9
     rm -rf /usr/local/lib/node_modules
@@ -44,13 +46,17 @@ remove_unneeded_packages() {
 
 
 upgrade_to_stretch() {
+    echo "** Upgrade to stretch **" 
+
     sed -i 's/jessie/stretch/' /etc/apt/sources.list
+	sed -i 's%deb https://deb.nodesource.com/node_0.12 stretch main%#deb https://deb.nodesource.com/node_0.12 stretch main%' /etc/apt/sources.list	
 
     cat >/etc/apt/sources.list.d/testing.list <<EOL
 #### Kamikaze ####  
 deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
 EOL
 
+	
     wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | sudo apt-key add -
 	apt-get update
     apt-get upgrade -y
@@ -58,6 +64,7 @@ EOL
 
 
 install_dependencies(){
+    echo "** Install dependencies **" 
 	apt-get install -y \
 	swig \
 	socat \
@@ -65,6 +72,8 @@ install_dependencies(){
 	libyaml-dev \
     gir1.2-mash-0.3-0 \
     gir1.2-mx-2.0 \
+	libclutter-imcontext-0.1-0 \
+	libcluttergesture-0.0.2-0 \
     python-scipy \
     python-gi-cairo
 	pip install evdev
@@ -131,7 +140,13 @@ post_octoprint() {
 
 	# Port forwarding
 	/sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
-	/usr/sbin/netfilter-persistent save
+	mkdir -p /etc/iptables
+	iptables-save > /etc/iptables/rules	
+	cat >/etc/network/if-pre-up.d/iptables <<EOL
+#!/bin/sh
+/sbin/iptables-restore < /etc/iptables/rules
+EOL
+	chmod +x /etc/network/if-pre-up.d/iptables
 
 	# Install systemd script
 	cp ./OctoPrint/octoprint.service /lib/systemd/system/
@@ -239,6 +254,13 @@ post_toggle() {
 }
 
 post_cura() {
+	cd /usr/src/
+	git clone https://github.com/Ultimaker/CuraEngine
+	cd CuraEngine/
+	git checkout  tags/15.04.6 -b tmp
+	make
+	cp build/CuraEngine /usr/bin/
+
 	# Copy profiles into Cura.
 	cd /usr/src/Kamikaze2
 	mkdir -p /home/octo/.octoprint/slicingProfiles/cura/
@@ -259,13 +281,17 @@ other() {
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 	sed -i 's/beaglebone/kamikaze/g' /etc/hosts
     sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
+
+	apt-get clean
+	apt-get autoclean
+	rm -rf /var/cache/doc*
 }
 
 
 
 dist() {
-    remove_unneeded_packages
-    upgrade_to_stretch    
+	remove_unneeded_packages
+	upgrade_to_stretch    
 	install_dependencies    
 	install_redeem
 	create_user
@@ -280,8 +306,6 @@ dist() {
 	post_cura
 	install_uboot
 	other
-
-
 }
 
 
