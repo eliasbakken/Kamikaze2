@@ -5,18 +5,21 @@
 # Make redeem dependencies built into redeem
 
 # TODO 2.0:
-# Custom uboot
+# cura engine
+# iptables-persistent
+# clear cache
 
 # STAGING: 
 # redeem starts after spidev2.1
 #  fatal error: yaml.h: No such file or directory
 # Adafruit lib disregard overlay (Swithed to spidev)
-# redeem plugin
-# Toggle plugin
 
 # DONE: 
 # consoleblank=0
 # sgx-install after changing kernel
+# Custom uboot
+# redeem plugin
+# Toggle plugin
 
 
 echo "**Making Kamikaze 2.0.5**"
@@ -24,7 +27,12 @@ echo "**Making Kamikaze 2.0.5**"
 export LC_ALL=C
 
 remove_unneeded_packages() {
-    apt-get purge \
+    rm -rf /etc/apache2/sites-enabled
+    rm -rf /root/.c9
+    rm -rf /usr/local/lib/node_modules
+    rm -rf /var/lib/cloud9
+    rm -rf /usr/lib/node_modules/
+    apt-get purge -y \
     bone101 nodejs \
     apache2 apache2-bin \
     apache2-data apache2-utils vim \
@@ -32,10 +40,6 @@ remove_unneeded_packages() {
     ti-pru-cgt-installer \
     doc-beaglebonegreen-getting-started \
     doc-seeed-bbgw-getting-started
-    rm -rf /root/.c9
-    rm -rf /root/.npm
-    rm -rf /usr/local/lib/node_modules
-    rm -rf /usr/lib/node_modules/
 }
 
 
@@ -56,11 +60,9 @@ EOL
 install_dependencies(){
 	apt-get install -y \
 	swig \
-	cura-engine \
-	iptables-persistent \
 	socat \
 	ti-sgx-es8-modules-4.4.20-bone13 \
-	libyaml-dev
+	libyaml-dev \
     gir1.2-mash-0.3-0 \
     gir1.2-mx-2.0 \
     python-scipy \
@@ -81,9 +83,6 @@ install_redeem() {
 	make install
 
     # Make profiles uploadable via Octoprint
-	mkdir -p /etc/redeem
-	cp configs/*.cfg /etc/redeem/
-	cp data/*.cht /etc/redeem/
 	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
 
@@ -267,7 +266,7 @@ other() {
 dist() {
     remove_unneeded_packages
     upgrade_to_stretch    
-	install_dependencies
+	install_dependencies    
 	install_redeem
 	create_user
 	install_octoprint
