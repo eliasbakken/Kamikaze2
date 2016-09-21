@@ -3,8 +3,14 @@
 # TODO 2.1: 
 # PCA9685 in devicetree
 # Make redeem dependencies built into redeem
+# Remove xcb/X11 dependencies
+# Add source to clutter packages
+# Slic3r support
+# Edit Cura profiles
 
 # TODO 2.0:
+# Update Redeem / Toggle
+# Update dogtag
 
 # STAGING: 
 # redeem starts after spidev2.1
@@ -21,8 +27,9 @@
 # Toggle plugin
 #  fatal error: yaml.h: No such file or directory
 
-
-echo "**Making Kamikaze 2.0.5**"
+VERSION="Kamikaze 2.0.5"
+DATE=`date`
+echo "**Making ${VERSION}**"
 
 export LC_ALL=C
 
@@ -41,7 +48,8 @@ remove_unneeded_packages() {
     linux-headers-4.4.19-ti-r41 \
     ti-pru-cgt-installer \
     doc-beaglebonegreen-getting-started \
-    doc-seeed-bbgw-getting-started
+    doc-seeed-bbgw-getting-started \
+	doc-beaglebone-getting-started
 }
 
 
@@ -57,9 +65,9 @@ deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
 EOL
 
 	
-    wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | sudo apt-key add -
+    wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | apt-key add -
 	apt-get update
-    apt-get upgrade -y
+	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 }
 
 
@@ -78,6 +86,11 @@ install_dependencies(){
     python-gi-cairo
 	pip install evdev
 	pip install spidev
+
+	apt-get purge -y \
+	linux-image-4.4.19-ti-r41 \
+	rtl8723bu-modules-4.4.19-ti-r41
+
 }
 
 install_redeem() {
@@ -193,67 +206,23 @@ install_sgx() {
 	cp scripts/sgx-startup.service /lib/systemd/system/
 	systemctl enable sgx-startup.service
 	depmod -a 4.4.20-bone13
+	ln -s /usr/lib/libEGL.so /usr/lib/libEGL.so.1
 }
 
-install_cogl() {
-	cd /usr/src
-	apt-get build-dep -y -t testing cogl
-	apt-get source -y -t testing cogl
-	cd cogl-1.22.2/
-	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection --disable-gles1 --enable-cairo --disable-gl --enable-gles2 --enable-null-egl-platform --enable-cogl-pango
-	sed -i 's/#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT/' cogl/winsys/cogl-winsys-egl.c 
-	make
-	make install
-}
-
-
-install_clutter() {
-	cd /usr/src
-	apt-get build-dep -y -t testing clutter-1.0
-	apt-get source -y -t testing clutter-1.0
-	cd clutter-1.0-1.26.0
-	./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --disable-x11-backend  --enable-egl-backend --enable-evdev-input --disable-gdk-backend --disable-wayland-backend
-	make
-	make install
-}
-
-
-install_mx() {
-	cd /usr/src
-	git clone https://github.com/clutter-project/mx.git
-	cd mx
-	./autogen.sh --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --with-winsys=none --disable-gtk-doc --enable-introspection
-	make
-	make install
-}
-
-install_mash() {
-	cd /usr/src
-	git clone https://github.com/eliasbakken/mash.git
-	cd /usr/src/mash
-	./autogen.sh --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/ --enable-introspection
-	sed -i 's:--library=mash-@MASH_API_VERSION@:--library=mash-@MASH_API_VERSION@ \ --library-path=/usr/src/mash/mash/.libs/:' mash/Makefile.am
-	make CFLAGS="`pkg-config --cflags clutter-1.0`"
-	make install
-}
 
 install_toggle() {
 	cd /usr/src
-    if [ ! -d "octoprint_toggle" ]; then
+    if [ ! -d "toggle" ]; then
 	    git clone https://bitbucket.org/intelligentagent/toggle
     fi
 	cd toggle
 	make install
-}
-
-post_toggle() {
-	cd /usr/src/toggle
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
 	systemctl start toggle
 }
 
-post_cura() {
+install_cura() {
 	cd /usr/src/
 	git clone https://github.com/Ultimaker/CuraEngine
 	cd CuraEngine/
@@ -285,6 +254,8 @@ other() {
 	apt-get clean
 	apt-get autoclean
 	rm -rf /var/cache/doc*
+	apt-get -y autoremove
+	echo "$VERSION $DATE" > /etc/dogtag
 }
 
 
@@ -292,6 +263,7 @@ other() {
 dist() {
 	remove_unneeded_packages
 	upgrade_to_stretch    
+	install_sgx
 	install_dependencies    
 	install_redeem
 	create_user
@@ -300,10 +272,8 @@ dist() {
 	install_octoprint_redeem
 	install_octoprint_toggle
 	install_overlays
-	install_sgx
 	install_toggle
-	post_toggle
-	post_cura
+	install_cura
 	install_uboot
 	other
 }
