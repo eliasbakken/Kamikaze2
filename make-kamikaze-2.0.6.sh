@@ -4,13 +4,13 @@
 # PCA9685 in devicetree
 # Make redeem dependencies built into redeem
 # Remove xcb/X11 dependencies
-# Add source to clutter packages
+# Add sources to clutter packages
 # Slic3r support
 # Edit Cura profiles
 
 # TODO 2.0:
-# Update Redeem / Toggle
-# Update dogtag
+# Sync Redeem master with develop. 
+# /dev/ttyGS0
 
 # STAGING: 
 # redeem starts after spidev2.1
@@ -18,6 +18,8 @@
 # cura engine
 # iptables-persistent
 # clear cache
+# Update dogtag
+# Update Redeem / Toggle
 
 # DONE: 
 # consoleblank=0
@@ -25,9 +27,9 @@
 # Custom uboot
 # redeem plugin
 # Toggle plugin
-#  fatal error: yaml.h: No such file or directory
+# Install libyaml
 
-VERSION="Kamikaze 2.0.5"
+VERSION="Kamikaze 2.0.6"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -83,6 +85,7 @@ install_dependencies(){
 	libclutter-imcontext-0.1-0 \
 	libcluttergesture-0.0.2-0 \
     python-scipy \
+    python-smbus \
     python-gi-cairo
 	pip install evdev
 	pip install spidev
