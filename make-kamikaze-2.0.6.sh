@@ -7,11 +7,11 @@
 # Add sources to clutter packages
 # Slic3r support
 # Edit Cura profiles
+# Remove root access 
+# /dev/ttyGS0
 
 # TODO 2.0:
 # Sync Redeem master with develop. 
-# /dev/ttyGS0
-# Remove root access 
 
 # STAGING: 
 # redeem starts after spidev2.1
@@ -57,25 +57,25 @@ remove_unneeded_packages() {
 
 
 upgrade_to_stretch() {
-    echo "** Upgrade to stretch **" 
+	echo "** Upgrade to stretch **" 
 
-    sed -i 's/jessie/stretch/' /etc/apt/sources.list
+	sed -i 's/jessie/stretch/' /etc/apt/sources.list
 	sed -i 's%deb https://deb.nodesource.com/node_0.12 stretch main%#deb https://deb.nodesource.com/node_0.12 stretch main%' /etc/apt/sources.list	
 
-    cat >/etc/apt/sources.list.d/testing.list <<EOL
+	cat >/etc/apt/sources.list.d/testing.list <<EOL
 #### Kamikaze ####  
 deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
 EOL
 
 	
-    wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | apt-key add -
+	wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | apt-key add -
 	apt-get update
 	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 }
 
 port_forwarding() {
-    echo "** Port Forwarding **"
-    # Port forwarding
+	echo "** Port Forwarding **"
+	# Port forwarding
 	/sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
 	mkdir -p /etc/iptables
 	iptables-save > /etc/iptables/rules	
@@ -87,40 +87,39 @@ EOL
 }
 
 install_dependencies(){
-    echo "** Install dependencies **" 
+	echo "** Install dependencies **" 
 	apt-get install -y \
 	swig \
 	socat \
 	ti-sgx-es8-modules-4.4.20-bone13 \
 	libyaml-dev \
-    gir1.2-mash-0.3-0 \
-    gir1.2-mx-2.0 \
+	gir1.2-mash-0.3-0 \
+	gir1.2-mx-2.0 \
 	libclutter-imcontext-0.1-0 \
 	libcluttergesture-0.0.2-0 \
-    python-scipy \
-    python-smbus \
-    python-gi-cairo
+	python-scipy \
+	python-smbus \
+	python-gi-cairo
 	pip install evdev
 	pip install spidev
 
 	apt-get purge -y \
 	linux-image-4.4.19-ti-r41 \
 	rtl8723bu-modules-4.4.19-ti-r41
-
 }
 
 install_redeem() {
-    echo "**install_octoprint_redeem**" 
+	echo "**install_octoprint_redeem**" 
 	cd /usr/src/
-    if [ ! -d "redeem" ]; then
-	    git clone https://bitbucket.org/intelligentagent/redeem
-    fi    
+	if [ ! -d "redeem" ]; then
+		git clone https://bitbucket.org/intelligentagent/redeem
+	fi    
 	cd redeem
-    git pull
+	git pull
 	git checkout develop
 	make install
 
-    # Make profiles uploadable via Octoprint
+	# Make profiles uploadable via Octoprint
 	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
 	chown -R octo:octo .git
@@ -137,6 +136,7 @@ install_redeem() {
 }
 
 create_user() {
+	echo "** Create user **" 
 	default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
 	mkdir /home/octo/
 	mkdir /home/octo/.octoprint
@@ -148,6 +148,7 @@ create_user() {
 }
 
 install_octoprint() {
+	echo "** Install OctoPrint **" 
 	cd /home/octo
 	su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
@@ -166,8 +167,8 @@ install_octoprint() {
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
 
-    echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/redeem install" >> /etc/sudoers
-    echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/toggle install" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/redeem install" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/toggle install" >> /etc/sudoers
 
 	# Install systemd script
 	cp ./OctoPrint/octoprint.service /lib/systemd/system/
@@ -206,6 +207,7 @@ install_overlays() {
 }
 
 install_sgx() {
+	echo "** install SGX **" 
 	cd /usr/src/Kamikaze2
 	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
 	cd /opt/gfxinstall/
@@ -219,10 +221,11 @@ install_sgx() {
 
 
 install_toggle() {
+	echo "** install toggle **" 
 	cd /usr/src
-    if [ ! -d "toggle" ]; then
-	    git clone https://bitbucket.org/intelligentagent/toggle
-    fi
+    	if [ ! -d "toggle" ]; then
+		git clone https://bitbucket.org/intelligentagent/toggle
+    	fi
 	cd toggle
 	make install
 	cp systemd/toggle.service /lib/systemd/system/
@@ -231,8 +234,11 @@ install_toggle() {
 }
 
 install_cura() {
+	echo "** install Cura **" 
 	cd /usr/src/
-	git clone https://github.com/Ultimaker/CuraEngine
+	if [ ! -d "CuraEngine" ]; then
+		git clone https://github.com/Ultimaker/CuraEngine
+	fi
 	cd CuraEngine/
 	git checkout  tags/15.04.6 -b tmp
 	make
@@ -247,6 +253,7 @@ install_cura() {
 
 
 install_uboot() {
+	echo "** install U-boot**" 
 	cd /usr/src/Kamikaze2
 	export DISK=/dev/mmcblk0
 	dd if=./u-boot/MLO of=${DISK} count=1 seek=1 bs=128k
@@ -257,7 +264,7 @@ other() {
 	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt	
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 	sed -i 's/beaglebone/kamikaze/g' /etc/hosts
-    sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
+	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
 
 	apt-get clean
 	apt-get autoclean
@@ -270,10 +277,10 @@ dist() {
 	remove_unneeded_packages
 	upgrade_to_stretch    
 	install_sgx
-    port_forwarding
+	port_forwarding
 	install_dependencies    
-	install_redeem
 	create_user
+	install_redeem
 	install_octoprint
 	install_octoprint_redeem
 	install_octoprint_toggle
