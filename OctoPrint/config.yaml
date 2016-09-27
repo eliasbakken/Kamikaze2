@@ -24,6 +24,10 @@ plugins:
         checkout_folder: /home/octo/OctoPrint
         prerelease: false
         type: github_release
+      Kamikaze:
+        checkout_folder: /usr/src/Kamikaze2
+        prerelease: false
+        type: github_release
 printerParameters: {}
 serial:
   additionalPorts:

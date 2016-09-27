@@ -11,7 +11,7 @@
 # /dev/ttyGS0
 
 # TODO 2.0:
-# Sync Redeem master with develop. 
+# Sync Redeem master with develop.  
 
 # STAGING: 
 # redeem starts after spidev2.1
@@ -30,28 +30,28 @@
 # Toggle plugin
 # Install libyaml
 
-VERSION="Kamikaze 2.0.6"
+VERSION="Kamikaze 2.0.7"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
 export LC_ALL=C
 
 remove_unneeded_packages() {
-    echo "** Remove unneded packages **" 
+	echo "** Remove unneded packages **" 
 
-    rm -rf /etc/apache2/sites-enabled
-    rm -rf /root/.c9
-    rm -rf /usr/local/lib/node_modules
-    rm -rf /var/lib/cloud9
-    rm -rf /usr/lib/node_modules/
-    apt-get purge -y \
-    bone101 nodejs \
-    apache2 apache2-bin \
-    apache2-data apache2-utils vim \
-    linux-headers-4.4.19-ti-r41 \
-    ti-pru-cgt-installer \
-    doc-beaglebonegreen-getting-started \
-    doc-seeed-bbgw-getting-started \
+	rm -rf /etc/apache2/sites-enabled
+	rm -rf /root/.c9
+	rm -rf /usr/local/lib/node_modules
+	rm -rf /var/lib/cloud9
+	rm -rf /usr/lib/node_modules/
+	apt-get purge -y \
+	bone101 nodejs \
+	apache2 apache2-bin \
+	apache2-data apache2-utils vim \
+	linux-headers-4.4.19-ti-r41 \
+	ti-pru-cgt-installer \
+	doc-beaglebonegreen-getting-started \
+	doc-seeed-bbgw-getting-started \
 	doc-beaglebone-getting-started
 }
 
@@ -228,6 +228,7 @@ install_toggle() {
     	fi
 	cd toggle
 	make install
+	chown -R octo:octo /etc/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
 	systemctl start toggle
