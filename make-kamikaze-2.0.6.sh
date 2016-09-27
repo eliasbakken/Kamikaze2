@@ -11,6 +11,7 @@
 # TODO 2.0:
 # Sync Redeem master with develop. 
 # /dev/ttyGS0
+# Remove root access 
 
 # STAGING: 
 # redeem starts after spidev2.1
@@ -72,6 +73,18 @@ EOL
 	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 }
 
+port_forwarding() {
+    echo "** Port Forwarding **"
+    # Port forwarding
+	/sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
+	mkdir -p /etc/iptables
+	iptables-save > /etc/iptables/rules	
+	cat >/etc/network/if-pre-up.d/iptables <<EOL
+#!/bin/sh
+/sbin/iptables-restore < /etc/iptables/rules
+EOL
+	chmod +x /etc/network/if-pre-up.d/iptables
+}
 
 install_dependencies(){
     echo "** Install dependencies **" 
@@ -138,9 +151,7 @@ install_octoprint() {
 	cd /home/octo
 	su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
-}
 
-post_octoprint() {
 	cd /usr/src/Kamikaze2
 	# Make config file for Octoprint
 	cp OctoPrint/config.yaml /home/octo/.octoprint/
@@ -157,16 +168,6 @@ post_octoprint() {
 
     echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/redeem install" >> /etc/sudoers
     echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/toggle install" >> /etc/sudoers
-
-	# Port forwarding
-	/sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
-	mkdir -p /etc/iptables
-	iptables-save > /etc/iptables/rules	
-	cat >/etc/network/if-pre-up.d/iptables <<EOL
-#!/bin/sh
-/sbin/iptables-restore < /etc/iptables/rules
-EOL
-	chmod +x /etc/network/if-pre-up.d/iptables
 
 	# Install systemd script
 	cp ./OctoPrint/octoprint.service /lib/systemd/system/
@@ -265,17 +266,15 @@ other() {
 	echo "$VERSION $DATE" > /etc/dogtag
 }
 
-
-
 dist() {
 	remove_unneeded_packages
 	upgrade_to_stretch    
 	install_sgx
+    port_forwarding
 	install_dependencies    
 	install_redeem
 	create_user
 	install_octoprint
-	post_octoprint
 	install_octoprint_redeem
 	install_octoprint_toggle
 	install_overlays
