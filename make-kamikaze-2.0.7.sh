@@ -99,7 +99,8 @@ install_dependencies(){
 	libcluttergesture-0.0.2-0 \
 	python-scipy \
 	python-smbus \
-	python-gi-cairo
+	python-gi-cairo \
+	libavahi-compat-libdnssd1
 	pip install evdev
 	pip install spidev
 
@@ -122,7 +123,7 @@ install_redeem() {
 	# Make profiles uploadable via Octoprint
 	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
-	chown -R octo:octo .git
+	chown -R octo:octo /usr/src/redeem/
 
 	cd /usr/src/Kamikaze2
 
@@ -229,6 +230,8 @@ install_toggle() {
 	cd toggle
 	make install
 	chown -R octo:octo /etc/toggle/
+	# Make it writable for updates
+	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
 	systemctl start toggle
@@ -266,6 +269,9 @@ other() {
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 	sed -i 's/beaglebone/kamikaze/g' /etc/hosts
 	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
+
+	# Install USB mount rules
+	cp scripts/11-usb-auto-mount.rules /etc/udev/rules.d/
 
 	apt-get clean
 	apt-get autoclean
