@@ -11,7 +11,7 @@
 # /dev/ttyGS0
 
 # TODO 2.0:
-# Sync Redeem master with develop.  
+# Sync Redeem master with develop.  	
 
 # STAGING: 
 # redeem starts after spidev2.1
@@ -272,6 +272,8 @@ other() {
 
 	# Install USB mount rules
 	cp scripts/11-usb-auto-mount.rules /etc/udev/rules.d/
+
+	chown -R octo:octo /usr/src/Kamikaze2
 
 	apt-get clean
 	apt-get autoclean

@@ -27,8 +27,8 @@ plugins:
         type: github_release
       Kamikaze:
         checkout_folder: /usr/src/Kamikaze2
-        prerelease: false
-        type: github_release
+        type: git_commit
+        update_script: '/usr/src/Kamikaze2/update-kamikaze.sh'
 printerParameters: {}
 serial:
   additionalPorts:
