@@ -271,6 +271,7 @@ other() {
 	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
 
 	# Install USB mount rules
+	mkdir -p /media/usb
 	cp scripts/11-usb-auto-mount.rules /etc/udev/rules.d/
 
 	chown -R octo:octo /usr/src/Kamikaze2
