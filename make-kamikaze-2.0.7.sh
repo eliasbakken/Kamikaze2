@@ -44,15 +44,18 @@ remove_unneeded_packages() {
 	rm -rf /usr/local/lib/node_modules
 	rm -rf /var/lib/cloud9
 	rm -rf /usr/lib/node_modules/
-	apt-get purge -y \
-	bone101 nodejs \
-	apache2 apache2-bin \
-	apache2-data apache2-utils vim \
-	linux-headers-4.4.19-ti-r41 \
-	ti-pru-cgt-installer \
-	doc-beaglebonegreen-getting-started \
-	doc-seeed-bbgw-getting-started \
-	doc-beaglebone-getting-started
+	apt-get purge -y bone101 
+	apt-get purge -y nodejs
+	apt-get purge -y apache2
+	apt-get purge -y apache2-bin
+	apt-get purge -y apache2-data
+	apt-get purge -y apache2-utils
+	apt-get purge -y vim
+	apt-get purge -y linux-headers-4.4.19-ti-r41
+	apt-get purge -y ti-pru-cgt-installer
+	apt-get purge -y doc-beaglebonegreen-getting-started
+	apt-get purge -y doc-seeed-bbgw-getting-started
+	apt-get purge -y doc-beaglebone-getting-started
 }
 
 
@@ -245,6 +248,8 @@ install_cura() {
 	fi
 	cd CuraEngine/
 	git checkout  tags/15.04.6 -b tmp
+	# Do perimeters first 
+	sed -i 's/SETTING(perimeterBeforeInfill, 0);/SETTING(perimeterBeforeInfill, 1);/' src/settings.cpp
 	make
 	cp build/CuraEngine /usr/bin/
 
