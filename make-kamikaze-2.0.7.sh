@@ -11,16 +11,12 @@
 # /dev/ttyGS0
 
 # TODO 2.0:
-# Sync Redeem master with develop.  	
+# initrd img on new kernel. 
+# USB mount, find, move
 
 # STAGING: 
-# redeem starts after spidev2.1
-# Adafruit lib disregard overlay (Swithed to spidev)
-# cura engine
-# iptables-persistent
-# clear cache
-# Update dogtag
-# Update Redeem / Toggle
+# Sync Redeem master with develop.  	
+# Choose Toggle config
 
 # DONE: 
 # consoleblank=0
@@ -29,6 +25,13 @@
 # redeem plugin
 # Toggle plugin
 # Install libyaml
+# redeem starts after spidev2.1
+# Adafruit lib disregard overlay (Swithed to spidev)
+# cura engine
+# iptables-persistenthttps://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
+# clear cache
+# Update dogtag
+# Update Redeem / Toggle
 
 VERSION="Kamikaze 2.0.7"
 DATE=`date`
@@ -103,7 +106,8 @@ install_dependencies(){
 	python-scipy \
 	python-smbus \
 	python-gi-cairo \
-	libavahi-compat-libdnssd1
+	libavahi-compat-libdnssd1 \
+    udisks2
 	pip install evdev
 	pip install spidev
 
@@ -120,7 +124,6 @@ install_redeem() {
 	fi    
 	cd redeem
 	git pull
-	git checkout develop
 	make install
 
 	# Make profiles uploadable via Octoprint
@@ -154,7 +157,9 @@ create_user() {
 install_octoprint() {
 	echo "** Install OctoPrint **" 
 	cd /home/octo
-	su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
+    if [ ! -d "OctoPrint" ]; then
+	    su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
+    fi
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
 
 	cd /usr/src/Kamikaze2
