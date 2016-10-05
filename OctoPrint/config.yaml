@@ -2,7 +2,6 @@ appearance: {}
 feature: {}
 folder:
   uploads: /usr/share/models
-  watched: /media/usb
 gcodeViewer: {}
 plugins:
   cura:

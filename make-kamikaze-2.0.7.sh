@@ -33,7 +33,7 @@
 # Update dogtag
 # Update Redeem / Toggle
 
-VERSION="Kamikaze 2.0.7"
+VERSION="Kamikaze 2.0.7-rc2"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -279,10 +279,6 @@ other() {
 	sed -i 's/beaglebone/kamikaze/' /etc/hostname
 	sed -i 's/beaglebone/kamikaze/g' /etc/hosts
 	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
-
-	# Install USB mount rules
-	mkdir -p /media/usb
-	cp scripts/11-usb-auto-mount.rules /etc/udev/rules.d/
 
 	chown -R octo:octo /usr/src/Kamikaze2
 
