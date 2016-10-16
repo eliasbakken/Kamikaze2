@@ -12,11 +12,10 @@
 
 # TODO 2.0:
 # initrd img on new kernel. 
-# USB mount, find, move
 
 # STAGING: 
-# Sync Redeem master with develop.  	
-# Choose Toggle config
+# Copy uboot files to /boot/uboot
+# Restart commands on install for Redeem and Toggle
 
 # DONE: 
 # consoleblank=0
@@ -32,8 +31,10 @@
 # clear cache
 # Update dogtag
 # Update Redeem / Toggle
+# Sync Redeem master with develop.  	
+# Choose Toggle config
 
-VERSION="Kamikaze 2.0.7-rc2"
+VERSION="Kamikaze 2.0.8"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -272,6 +273,8 @@ install_uboot() {
 	export DISK=/dev/mmcblk0
 	dd if=./u-boot/MLO of=${DISK} count=1 seek=1 bs=128k
 	dd if=./u-boot/u-boot.img of=${DISK} count=2 seek=1 bs=384k
+    cp ./u-boot/MLO /boot/uboot/
+    cp ./u-boot/u-boot.img /boot/uboot/ 
 }
 
 other() {
