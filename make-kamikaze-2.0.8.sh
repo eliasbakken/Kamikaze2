@@ -11,11 +11,12 @@
 # /dev/ttyGS0
 
 # TODO 2.0:
-# initrd img on new kernel. 
+# initrd img / depmod-a on new kernel. 
 
 # STAGING: 
 # Copy uboot files to /boot/uboot
 # Restart commands on install for Redeem and Toggle
+# Update to Clutter 1.26.0+dsfg-1
 
 # DONE: 
 # consoleblank=0
@@ -107,8 +108,7 @@ install_dependencies(){
 	python-scipy \
 	python-smbus \
 	python-gi-cairo \
-	libavahi-compat-libdnssd1 \
-    udisks2
+	libavahi-compat-libdnssd1 
 	pip install evdev
 	pip install spidev
 
