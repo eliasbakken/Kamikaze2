@@ -11,6 +11,7 @@
 # /dev/ttyGS0
 
 # TODO 2.0:
+# After boot, 
 # initrd img / depmod-a on new kernel. 
 
 # STAGING: 
