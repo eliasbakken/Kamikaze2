@@ -9,6 +9,28 @@ plugins:
     cura_engine: /usr/bin/CuraEngine
     debug_logging: false
     default_profile: null
+  softwareupdate:
+    _config_version: 4
+    checks:
+      Redeem:
+        checkout_folder: /usr/src/redeem
+        type: git_commit
+        update_script: '{python} "/usr/src/redeem/update-redeem.py" --python="{python}" --sudo "{folder}" "{target}"'
+        restart: 'echo "Redeem dummy restart"'
+      Toggle:
+        checkout_folder: /usr/src/toggle
+        type: git_commit
+        update_script: '{python} "/usr/src/toggle/update-toggle.py" --python="{python}" "{folder}" "{target}"'
+        restart: 'echo "Toggle dummy restart"'
+      octoprint:
+        checkout_folder: /home/octo/OctoPrint
+        prerelease: false
+        type: github_release
+      Kamikaze:
+        checkout_folder: /usr/src/Kamikaze2
+        type: git_commit
+        update_script: '/usr/src/Kamikaze2/update-kamikaze.sh'
+        restart: 'echo "Kamikaze dummy restart"'
 printerParameters: {}
 serial:
   additionalPorts:
@@ -135,7 +157,7 @@ controls:
       - default: 10
         name: Steps pr mm X
         parameter: steps_pr_mm_x
-      - default: 0
+      - default: 1
         name: Invert X
         parameter: direction_x
         slider:
@@ -151,7 +173,7 @@ controls:
       - default: 10
         name: Steps pr mm Y
         parameter: steps_pr_mm_y
-      - default: 0
+      - default: 1
         name: Invert Y
         parameter: direction_y
         slider:
@@ -167,7 +189,7 @@ controls:
       - default: 10
         name: Steps pr mm Z
         parameter: steps_pr_mm_z
-      - default: 0
+      - default: 1
         name: Invert Z
         parameter: direction_z
         slider:
@@ -183,7 +205,7 @@ controls:
       - default: 10
         name: Steps pr mm E
         parameter: steps_pr_mm_e
-      - default: 0
+      - default: 1
         name: Invert E
         parameter: direction_e
         slider:
@@ -199,50 +221,10 @@ controls:
       - default: 10
         name: Steps pr mm H
         parameter: steps_pr_mm_h
-      - default: 0
+      - default: 1
         name: Invert H
         parameter: direction_h
         slider:
           max: 1
           min: -1
           step: 2
-  - name: PID
-    layout: horizontal
-    children:
-      - name: Set PID E
-        commands:
-          - M130 P0 S%(pid_p_e)s
-          - M131 P0 S%(pid_i_e)s
-          - M132 P0 S%(pid_d_e)s
-        input:
-          - name: P
-            parameter: pid_p_e
-          - name: I
-            parameter: pid_i_e
-          - name: D
-            parameter: pid_d_e
-      - name: Set PID H
-        commands:
-          - M130 P1 S%(pid_p_h)s
-          - M131 P1 S%(pid_i_h)s
-          - M132 P1 S%(pid_d_h)s
-        input:
-          - name: P
-            parameter: pid_p_h
-          - name: I
-            parameter: pid_i_h
-          - name: D
-            parameter: pid_d_h
-      - name: Set PID Bed
-        commands:
-          - M130 P2 S%(pid_p_hbp)s
-          - M131 P2 S%(pid_i_hbp)s
-          - M132 P2 S%(pid_d_hbp)s
-        input:
-          - name: P
-            parameter: pid_p_hbp
-          - name: I
-            parameter: pid_i_hbp
-          - name: D
-            parameter: pid_d_hbp
-

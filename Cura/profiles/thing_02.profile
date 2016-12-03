@@ -162,7 +162,7 @@ raft_line_spacing: 3.0
 raft_margin: 5.0
 raft_surface_layers: 2
 retraction_amount: 3
-retraction_combing: true
+retraction_combing: no skin
 retraction_dual_amount: 16.5
 retraction_enable: true
 retraction_hop: 0.0
