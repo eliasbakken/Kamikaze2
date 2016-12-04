@@ -182,8 +182,11 @@ install_octoprint() {
 	chmod 777 /usr/share/models
 
 	# Grant octo redeem restart rights
-	echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
-	echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /bin/systemctl restart octoprint" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /sbin/reboot" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /sbin/shutdown -now" >> /etc/sudoers
 
 	echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/redeem install" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/toggle install" >> /etc/sudoers
