@@ -95,6 +95,7 @@ install_dependencies(){
 	gir1.2-mx-2.0 \
 	libclutter-imcontext-0.1-0 \
 	libcluttergesture-0.0.2-0 \
+	libclutter-1.0-dev
 	python-scipy \
 	python-smbus \
 	python-gi-cairo \
