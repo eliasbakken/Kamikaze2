@@ -47,6 +47,7 @@ prep_ubuntu() {
 	cd /opt/scripts/tools/
 	git pull
 	sh update_kernel.sh --bone-kernel --lts-4_1
+	touch /etc/pm/sleep.d/wireless
 }
 
 remove_unneeded_packages() {
