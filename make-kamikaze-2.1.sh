@@ -320,6 +320,7 @@ other() {
 }
 
 dist() {
+	prep_ubuntu
 	remove_unneeded_packages
 	install_repo
 	port_forwarding
