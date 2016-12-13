@@ -180,6 +180,8 @@ install_octoprint() {
     fi
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
 
+	su - octo -c 'pip install https://github.com/kennethjiang/OctoPrint-Slicer/archive/master.zip --user'
+
 	cd /usr/src/Kamikaze2
 	# Make config file for Octoprint
 	cp OctoPrint/config.yaml /home/octo/.octoprint/
