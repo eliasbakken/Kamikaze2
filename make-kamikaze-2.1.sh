@@ -52,6 +52,7 @@ prep_ubuntu() {
 	git pull
 	sh update_kernel.sh --bone-kernel --lts-4_1
 	touch /etc/pm/sleep.d/wireless
+	apt-get install unzip iptables
 }
 
 remove_unneeded_packages() {
@@ -90,7 +91,8 @@ EOL
 install_dependencies(){
 	echo "** Install dependencies **"
 	apt-get install -y \
-	python-pip
+	python-pip \
+	unzip \
 	network-manager\
 	swig \
 	socat \
@@ -99,15 +101,16 @@ install_dependencies(){
 	libegl1-sgx-omap3 \ # to avoid issues with the mesa version of libEGL!
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
-	libcogl20 \ # make sure it's the version from the thing-printer repository!
-	libclutter-1.0-0 \ # make sure it's the version from the thing-printer repository!
-	libclutter-imcontext-0.1-0 \ # make sure it's the version from the thing-printer repository!
+	libcogl20 \ # make sure it\'s the version from the thing-printer repository!
+	libclutter-1.0-0 \ # make sure it\'s the version from the thing-printer repository!
+	libclutter-imcontext-0.1-0 \ # make sure it\'s the version from the thing-printer repository!
 	libcluttergesture-0.0.2-0 \
 	libclutter-1.0-dev \
 	python-scipy \
 	python-smbus \
 	python-gi-cairo \
-	libavahi-compat-libdnssd1 
+	python-numpy \
+	libavahi-compat-libdnssd1
 	pip install evdev
 	pip install spidev
 	pip install Adafruit_BBIO
@@ -135,11 +138,11 @@ install_dependencies(){
 }
 
 install_redeem() {
-	echo "**install_redeem**" 
+	echo "**install_redeem**"
 	cd /usr/src/
 	if [ ! -d "redeem" ]; then
 		git clone --depth 1 https://bitbucket.org/intelligentagent/redeem
-	fi    
+	fi
 	cd redeem
 	git pull
 	make install
@@ -161,7 +164,7 @@ install_redeem() {
 }
 
 create_user() {
-	echo "** Create user **" 
+	echo "** Create user **"
 	default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
 	mkdir /home/octo/
 	mkdir /home/octo/.octoprint
@@ -209,7 +212,7 @@ install_octoprint() {
 }
 
 install_octoprint_redeem() {
-	echo "**install_octoprint_redeem**" 
+	echo "**install_octoprint_redeem**"
 	cd /usr/src/
 	if [ ! -d "octoprint_redeem" ]; then
 		git clone --depth 1 https://github.com/eliasbakken/octoprint_redeem
@@ -219,7 +222,7 @@ install_octoprint_redeem() {
 }
 
 install_octoprint_toggle() {
-	echo "**install_octoprint_toggle**" 
+	echo "**install_octoprint_toggle**"
 	cd /usr/src
 	if [ ! -d "octoprint_toggle" ]; then
 		git clone --depth 1 https://github.com/eliasbakken/octoprint_toggle
@@ -229,17 +232,17 @@ install_octoprint_toggle() {
 }
 
 install_overlays() {
-	echo "**install_overlays**" 
+	echo "**install_overlays**"
 	cd /usr/src/
 	if [ ! -d "bb.org-overlays" ]; then
 		git clone --depth 1 https://github.com/eliasbakken/bb.org-overlays
 	fi
 	cd bb.org-overlays
-	./install.sh 
+	./install.sh
 }
 
 install_sgx() {
-	echo "** install SGX **" 
+	echo "** install SGX **"
 	cd /usr/src/Kamikaze2
 	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
 	cd /opt/gfxinstall/
@@ -253,7 +256,7 @@ install_sgx() {
 
 
 install_toggle() {
-	echo "** install toggle **" 
+	echo "** install toggle **"
 	cd /usr/src
     	if [ ! -d "toggle" ]; then
 		git clone --depth 1 https://bitbucket.org/intelligentagent/toggle
@@ -269,14 +272,14 @@ install_toggle() {
 }
 
 install_cura() {
-	echo "** install Cura **" 
+	echo "** install Cura **"
 	cd /usr/src/
 	if [ ! -d "CuraEngine" ]; then
 		git clone --depth 1 https://github.com/Ultimaker/CuraEngine
 	fi
 	cd CuraEngine/
 	git checkout  tags/15.04.6 -b tmp
-	# Do perimeters first 
+	# Do perimeters first
 	sed -i 's/SETTING(perimeterBeforeInfill, 0);/SETTING(perimeterBeforeInfill, 1);/' src/settings.cpp
 	make
 	cp build/CuraEngine /usr/bin/
@@ -296,11 +299,11 @@ install_uboot() {
 	dd if=./u-boot/MLO of=${DISK} count=1 seek=1 bs=128k
 	dd if=./u-boot/u-boot.img of=${DISK} count=2 seek=1 bs=384k
     cp ./u-boot/MLO /boot/uboot/
-    cp ./u-boot/u-boot.img /boot/uboot/ 
+    cp ./u-boot/u-boot.img /boot/uboot/
 }
 
 other() {
-	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt	
+	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt
 	sed -i 's/arm/kamikaze/' /etc/hostname
 	sed -i 's/arm/kamikaze/g' /etc/hosts
 	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
