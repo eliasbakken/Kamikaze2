@@ -98,12 +98,12 @@ install_dependencies(){
 	socat \
 	ti-sgx-es8-modules-`uname -r` \
 	libyaml-dev \
-	libegl1-sgx-omap3 \ # to avoid issues with the mesa version of libEGL!
+	libegl1-sgx-omap3 \
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
-	libcogl20 \ # make sure it is the version from the thing-printer repository!
-	libclutter-1.0-0 \ # make sure it is the version from the thing-printer repository!
-	libclutter-imcontext-0.1-0 \ # make sure it is the version from the thing-printer repository!
+	libcogl20 \
+	libclutter-1.0-0 \
+	libclutter-imcontext-0.1-0 \
 	libcluttergesture-0.0.2-0 \
 	libclutter-1.0-dev \
 	python-scipy \
@@ -323,6 +323,7 @@ dist() {
 	prep_ubuntu
 	remove_unneeded_packages
 	install_repo
+	reboot
 	port_forwarding
 	install_dependencies
 	install_sgx
