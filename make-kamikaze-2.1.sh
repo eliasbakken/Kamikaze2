@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# base is https://rcn-ee.com/rootfs/2016-11-10/elinux/ubuntu-16.04.1-console-armhf-2016-11-10.tar.xz
+# base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
 #
 
 # TODO 2.1: 
