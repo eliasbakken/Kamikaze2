@@ -179,7 +179,7 @@ install_octoprint() {
 	    su - octo -c 'git clone --depth 1 https://github.com/foosel/OctoPrint.git'
     fi
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
-
+	su - octo -c 'pip install https://github.com/Salandora/OctoPrint-FileManager/archive/master.zip --user'
 	su - octo -c 'pip install https://github.com/kennethjiang/OctoPrint-Slicer/archive/master.zip --user'
 
 	cd /usr/src/Kamikaze2
