@@ -312,6 +312,8 @@ other() {
 	rm -rf /var/cache/doc*
 	apt-get -y autoremove
 	echo "$VERSION $DATE" > /etc/dogtag
+	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
+	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
 }
 
 dist() {
