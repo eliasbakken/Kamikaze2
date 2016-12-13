@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# base is https://rcn-ee.com/rootfs/2016-11-10/elinux/ubuntu-16.04.1-console-armhf-2016-11-10.tar.xz
+#
+
 # TODO 2.1: 
 # PCA9685 in devicetree
 # Make redeem dependencies built into redeem
@@ -36,7 +40,7 @@
 # Sync Redeem master with develop.  	
 # Choose Toggle config
 
-VERSION="Kamikaze 2.0.9"
+VERSION="Kamikaze 2.1.0"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -92,11 +96,14 @@ install_dependencies(){
 	socat \
 	ti-sgx-es8-modules-`uname -r` \
 	libyaml-dev \
+	libegl1-sgx-omap3 \ # to avoid issues with the mesa version of libEGL!
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
-	libclutter-imcontext-0.1-0 \
+	libcogl20 \ # make sure it's the version from the thing-printer repository!
+	libclutter-1.0-0 \ # make sure it's the version from the thing-printer repository!
+	libclutter-imcontext-0.1-0 \ # make sure it's the version from the thing-printer repository!
 	libcluttergesture-0.0.2-0 \
-	libclutter-1.0-dev
+	libclutter-1.0-dev \
 	python-scipy \
 	python-smbus \
 	python-gi-cairo \
@@ -131,7 +138,7 @@ install_redeem() {
 	echo "**install_redeem**" 
 	cd /usr/src/
 	if [ ! -d "redeem" ]; then
-		git clone https://bitbucket.org/intelligentagent/redeem
+		git clone --depth 1 https://bitbucket.org/intelligentagent/redeem
 	fi    
 	cd redeem
 	git pull
@@ -169,7 +176,7 @@ install_octoprint() {
 	echo "** Install OctoPrint **" 
 	cd /home/octo
     if [ ! -d "OctoPrint" ]; then
-	    su - octo -c 'git clone https://github.com/foosel/OctoPrint.git'
+	    su - octo -c 'git clone --depth 1 https://github.com/foosel/OctoPrint.git'
     fi
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
 
@@ -188,7 +195,7 @@ install_octoprint() {
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart octoprint" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /sbin/reboot" >> /etc/sudoers
-	echo "%octo ALL=NOPASSWD: /sbin/shutdown -now" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /sbin/shutdown -h now" >> /etc/sudoers
 
 	echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/redeem install" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/toggle install" >> /etc/sudoers
@@ -203,7 +210,7 @@ install_octoprint_redeem() {
 	echo "**install_octoprint_redeem**" 
 	cd /usr/src/
 	if [ ! -d "octoprint_redeem" ]; then
-		git clone https://github.com/eliasbakken/octoprint_redeem
+		git clone --depth 1 https://github.com/eliasbakken/octoprint_redeem
 	fi
 	cd octoprint_redeem
 	python setup.py install
@@ -213,7 +220,7 @@ install_octoprint_toggle() {
 	echo "**install_octoprint_toggle**" 
 	cd /usr/src
 	if [ ! -d "octoprint_toggle" ]; then
-		git clone https://github.com/eliasbakken/octoprint_toggle
+		git clone --depth 1 https://github.com/eliasbakken/octoprint_toggle
 	fi
 	cd octoprint_toggle
 	python setup.py install
@@ -223,7 +230,7 @@ install_overlays() {
 	echo "**install_overlays**" 
 	cd /usr/src/
 	if [ ! -d "bb.org-overlays" ]; then
-		git clone https://github.com/eliasbakken/bb.org-overlays
+		git clone --depth 1 https://github.com/eliasbakken/bb.org-overlays
 	fi
 	cd bb.org-overlays
 	./install.sh 
@@ -247,7 +254,7 @@ install_toggle() {
 	echo "** install toggle **" 
 	cd /usr/src
     	if [ ! -d "toggle" ]; then
-		git clone https://bitbucket.org/intelligentagent/toggle
+		git clone --depth 1 https://bitbucket.org/intelligentagent/toggle
     	fi
 	cd toggle
 	make install
@@ -263,7 +270,7 @@ install_cura() {
 	echo "** install Cura **" 
 	cd /usr/src/
 	if [ ! -d "CuraEngine" ]; then
-		git clone https://github.com/Ultimaker/CuraEngine
+		git clone --depth 1 https://github.com/Ultimaker/CuraEngine
 	fi
 	cd CuraEngine/
 	git checkout  tags/15.04.6 -b tmp
