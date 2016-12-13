@@ -6,7 +6,7 @@ prep_ubuntu() {
 	git pull
 	sh update_kernel.sh --bone-kernel --lts-4_1
 	touch /etc/pm/sleep.d/wireless
-	apt-get install unzip iptables
+	apt-get -y install unzip iptables
 }
 
 remove_unneeded_packages() {
