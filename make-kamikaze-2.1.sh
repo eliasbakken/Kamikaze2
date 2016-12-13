@@ -101,9 +101,9 @@ install_dependencies(){
 	libegl1-sgx-omap3 \ # to avoid issues with the mesa version of libEGL!
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
-	libcogl20 \ # make sure it\'s the version from the thing-printer repository!
-	libclutter-1.0-0 \ # make sure it\'s the version from the thing-printer repository!
-	libclutter-imcontext-0.1-0 \ # make sure it\'s the version from the thing-printer repository!
+	libcogl20 \ # make sure it is the version from the thing-printer repository!
+	libclutter-1.0-0 \ # make sure it is the version from the thing-printer repository!
+	libclutter-imcontext-0.1-0 \ # make sure it is the version from the thing-printer repository!
 	libcluttergesture-0.0.2-0 \
 	libclutter-1.0-dev \
 	python-scipy \
