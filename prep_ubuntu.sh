@@ -32,3 +32,4 @@ EOL
 prep_ubuntu
 remove_unneeded_packages
 install_repo
+reboot
