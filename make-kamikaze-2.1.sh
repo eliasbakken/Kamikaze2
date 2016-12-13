@@ -294,7 +294,6 @@ dist() {
 #	prep_ubuntu
 #	remove_unneeded_packages
 #	install_repo
-	reboot
 	port_forwarding
 	install_dependencies
 	install_sgx
