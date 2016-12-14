@@ -66,6 +66,7 @@ install_dependencies(){
 	apt-get install -y libegl1-sgx-omap3
 	apt-get install -y \
 	python-pip \
+	python-dev \
 	network-manager \
 	swig \
 	socat \
@@ -77,15 +78,15 @@ install_dependencies(){
 	libclutter-1.0-0 \
 	libclutter-imcontext-0.1-0 \
 	libcluttergesture-0.0.2-0 \
-	libclutter-1.0-dev \
 	python-scipy \
 	python-smbus \
 	python-gi-cairo \
 	python-numpy \
 	libavahi-compat-libdnssd1
-	pip install evdev
-	pip install spidev
-	pip install Adafruit_BBIO
+	#	libclutter-1.0-dev \
+	pip install --upgrade pip
+	pip install setuptools
+	pip install evdev spidev Adafruit_BBIO
 
 	wget https://github.com/beagleboard/am335x_pru_package/archive/master.zip
 	unzip master.zip
