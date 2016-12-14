@@ -61,15 +61,14 @@ EOL
 
 install_dependencies(){
 	echo "** Install dependencies **"
+	apt-get install -y libegl1-sgx-omap3
 	apt-get install -y \
 	python-pip \
-	unzip \
-	network-manager\
+	network-manager \
 	swig \
 	socat \
 	ti-sgx-es8-modules-`uname -r` \
 	libyaml-dev \
-	libegl1-sgx-omap3 \
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
 	libcogl20 \
