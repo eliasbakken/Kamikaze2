@@ -19,10 +19,6 @@ To create Kamikaze 2.1:
     cd /usr/src/Kamikaze2/
     bash make-kamikaze-2.1.sh
 
-
-
-
-
 The starting point for Kamikaze 2.0.0 is the Debian IoT image found here: 
 https://debian.beagleboard.org/images/
 
