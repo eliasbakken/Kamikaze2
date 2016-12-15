@@ -5,6 +5,7 @@ The starting point for Kamikaze 2.1.0 is the Ubuntu console image found here:
 http://elinux.org/BeagleBoardUbuntu#eMMC:_BeagleBone_Black.2FGreen
 
 To create Kamikaze 2.1:
+    
     disable the eMMC flasher on the SD image first!
     ssh ubuntu@arm (password: temppwd)
     sudo su -
