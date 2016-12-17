@@ -252,10 +252,11 @@ install_cura() {
 	echo "** install Cura **"
 	cd /usr/src/
 	if [ ! -d "CuraEngine" ]; then
-		git clone --depth 1 https://github.com/Ultimaker/CuraEngine
+		wget https://github.com/Ultimaker/CuraEngine/archive/15.04.6.zip
+		unzip 15.04.6.zip
+		rm 15.04.6.zip
 	fi
-	cd CuraEngine/
-	git checkout  tags/15.04.6 -b tmp
+	cd CuraEngine-15.04.6/
 	# Do perimeters first
 	sed -i 's/SETTING(perimeterBeforeInfill, 0);/SETTING(perimeterBeforeInfill, 1);/' src/settings.cpp
 	make
