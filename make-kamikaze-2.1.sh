@@ -297,19 +297,19 @@ other() {
 }
 
 dist() {
-	port_forwarding
-	install_dependencies
-	install_sgx
-	create_user
-	install_redeem
-	install_octoprint
-	install_octoprint_redeem
-	install_octoprint_toggle
-	install_overlays
-	install_toggle
+#	port_forwarding
+#	install_dependencies
+#	install_sgx
+#	create_user
+#	install_redeem
+#	install_octoprint
+#	install_octoprint_redeem
+#	install_octoprint_toggle
+#	install_overlays
+#	install_toggle
 	install_cura
-	install_uboot
-	other
+#	install_uboot
+#	other
 }
 
 
