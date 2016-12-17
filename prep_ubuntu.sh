@@ -1,14 +1,21 @@
 #!/bin/bash
 
+WD=/usr/src/Kamikaze2/
+
+network_fixes() {
+        cp $WD/interfaces /etc/network/
+        sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
+}
+
 prep_ubuntu() {
 	apt-get update
-	apt-get -y upgrade
 	echo "** Preparing Ubuntu for kamikaze2 **"
 	cd /opt/scripts/tools/
 	git pull
 	sh update_kernel.sh --bone-kernel --lts-4_1
-	touch /etc/pm/sleep.d/wireless
+	apt-get -y upgrade
 	apt-get -y install unzip iptables
+	touch /etc/pm/sleep.d/wireless
 	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 }
 
@@ -32,7 +39,13 @@ EOL
 	apt-get update
 }
 
-prep_ubuntu
-remove_unneeded_packages
-install_repo
-reboot
+prep() {
+	network_fixes
+	prep_ubuntu
+	remove_unneeded_packages
+	install_repo
+}
+
+prep
+
+echo "Now reboot into the new kernel and run make-kamikaze-2.1.sh"

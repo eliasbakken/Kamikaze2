@@ -40,6 +40,7 @@
 # Sync Redeem master with develop.  	
 # Choose Toggle config
 
+WORKINGDIR=`pwd`/
 VERSION="Kamikaze 2.1.0"
 DATE=`date`
 echo "**Making ${VERSION}**"
@@ -82,8 +83,11 @@ install_dependencies(){
 	python-smbus \
 	python-gi-cairo \
 	python-numpy \
-	libavahi-compat-libdnssd1
-	#	libclutter-1.0-dev \
+	libavahi-compat-libdnssd1 \
+	libclutter-1.0-common \
+	libclutter-imcontext-0.1-bin \
+	libcogl-common \
+	libmx-bin
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
@@ -293,9 +297,6 @@ other() {
 }
 
 dist() {
-#	prep_ubuntu
-#	remove_unneeded_packages
-#	install_repo
 	port_forwarding
 	install_dependencies
 	install_sgx
