@@ -2,13 +2,13 @@
 
 prep_ubuntu() {
 	apt-get update
-	apt-get -y upgrade
 	echo "** Preparing Ubuntu for kamikaze2 **"
 	cd /opt/scripts/tools/
 	git pull
 	sh update_kernel.sh --bone-kernel --lts-4_1
-	touch /etc/pm/sleep.d/wireless
+	apt-get -y upgrade
 	apt-get -y install unzip iptables
+	touch /etc/pm/sleep.d/wireless
 	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 }
 
