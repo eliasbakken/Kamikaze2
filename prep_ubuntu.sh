@@ -1,8 +1,8 @@
 #!/bin/bash
 
 prep_ubuntu() {
-  apt-get update
-  apt-get -y upgrade
+	apt-get update
+	apt-get -y upgrade
 	echo "** Preparing Ubuntu for kamikaze2 **"
 	cd /opt/scripts/tools/
 	git pull
@@ -32,7 +32,12 @@ EOL
 	apt-get update
 }
 
-prep_ubuntu
-remove_unneeded_packages
-install_repo
-reboot
+prep() {
+	prep_ubuntu
+	remove_unneeded_packages
+	install_repo
+}
+
+prep
+
+echo "Now reboot into the new kernel and run make-kamikaze-2.1.sh"
