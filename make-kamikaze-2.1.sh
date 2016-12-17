@@ -40,7 +40,7 @@
 # Sync Redeem master with develop.  	
 # Choose Toggle config
 
-WORKINGDIR=`pwd`/
+WD=`pwd`/
 VERSION="Kamikaze 2.1.0"
 DATE=`date`
 echo "**Making ${VERSION}**"
@@ -297,20 +297,27 @@ other() {
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
 }
 
+install_usbreset {
+	cd $WD
+	cc usbreset.c -o usbreset
+	chmod +x usbreset
+	mv usbreset /usr/local/sbin/
+}
+
 dist() {
-#	port_forwarding
-#	install_dependencies
-#	install_sgx
-#	create_user
-#	install_redeem
-#	install_octoprint
-#	install_octoprint_redeem
-#	install_octoprint_toggle
-#	install_overlays
-#	install_toggle
+	port_forwarding
+	install_dependencies
+	install_sgx
+	create_user
+	install_redeem
+	install_octoprint
+	install_octoprint_redeem
+	install_octoprint_toggle
+	install_overlays
+	install_toggle
 	install_cura
-#	install_uboot
-#	other
+	install_uboot
+	other
 }
 
 
