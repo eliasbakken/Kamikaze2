@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# base is https://rcn-ee.com/rootfs/2016-11-10/elinux/ubuntu-16.04.1-console-armhf-2016-11-10.tar.xz
+# base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
 #
 
 # TODO 2.1: 
@@ -40,39 +40,12 @@
 # Sync Redeem master with develop.  	
 # Choose Toggle config
 
+WD=`pwd`/
 VERSION="Kamikaze 2.1.0"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
 export LC_ALL=C
-
-prep_ubuntu() {
-	echo "** Preparing Ubuntu for kamikaze2 **"
-	cd /opt/scripts/tools/
-	git pull
-	sh update_kernel.sh --bone-kernel --lts-4_1
-	touch /etc/pm/sleep.d/wireless
-}
-
-remove_unneeded_packages() {
-	echo "** Remove unneded packages **" 
-
-	rm -rf /etc/apache2/sites-enabled
-	rm -rf /root/.c9
-	rm -rf /usr/local/lib/node_modules
-	rm -rf /var/lib/cloud9
-	rm -rf /usr/lib/node_modules/
-	apt-get purge -y apache2 apache2-bin apache2-data apache2-utils
-}
-
-install_repo() {
-	cat >/etc/apt/sources.list.d/testing.list <<EOL
-#### Kamikaze ####
-deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
-EOL
-	wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | apt-key add -
-	apt-get update
-}
 
 port_forwarding() {
 	echo "** Port Forwarding **"
@@ -89,28 +62,35 @@ EOL
 
 install_dependencies(){
 	echo "** Install dependencies **"
+	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
+	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
+	apt-get install -y libegl1-sgx-omap3
 	apt-get install -y \
-	python-pip
-	network-manager\
+	python-pip \
+	python-dev \
+	network-manager \
 	swig \
 	socat \
 	ti-sgx-es8-modules-`uname -r` \
 	libyaml-dev \
-	libegl1-sgx-omap3 \ # to avoid issues with the mesa version of libEGL!
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
-	libcogl20 \ # make sure it's the version from the thing-printer repository!
-	libclutter-1.0-0 \ # make sure it's the version from the thing-printer repository!
-	libclutter-imcontext-0.1-0 \ # make sure it's the version from the thing-printer repository!
+	libcogl20 \
+	libclutter-1.0-0 \
+	libclutter-imcontext-0.1-0 \
 	libcluttergesture-0.0.2-0 \
-	libclutter-1.0-dev \
 	python-scipy \
 	python-smbus \
 	python-gi-cairo \
-	libavahi-compat-libdnssd1 
-	pip install evdev
-	pip install spidev
-	pip install Adafruit_BBIO
+	python-numpy \
+	libavahi-compat-libdnssd1 \
+	libclutter-1.0-common \
+	libclutter-imcontext-0.1-bin \
+	libcogl-common \
+	libmx-bin
+	pip install --upgrade pip
+	pip install setuptools
+	pip install evdev spidev Adafruit_BBIO
 
 	wget https://github.com/beagleboard/am335x_pru_package/archive/master.zip
 	unzip master.zip
@@ -135,11 +115,11 @@ install_dependencies(){
 }
 
 install_redeem() {
-	echo "**install_redeem**" 
+	echo "**install_redeem**"
 	cd /usr/src/
 	if [ ! -d "redeem" ]; then
 		git clone --depth 1 https://bitbucket.org/intelligentagent/redeem
-	fi    
+	fi
 	cd redeem
 	git pull
 	make install
@@ -161,7 +141,7 @@ install_redeem() {
 }
 
 create_user() {
-	echo "** Create user **" 
+	echo "** Create user **"
 	default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
 	mkdir /home/octo/
 	mkdir /home/octo/.octoprint
@@ -179,6 +159,8 @@ install_octoprint() {
 	    su - octo -c 'git clone --depth 1 https://github.com/foosel/OctoPrint.git'
     fi
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
+	su - octo -c 'pip install https://github.com/Salandora/OctoPrint-FileManager/archive/master.zip --user'
+	su - octo -c 'pip install https://github.com/kennethjiang/OctoPrint-Slicer/archive/master.zip --user'
 
 	cd /usr/src/Kamikaze2
 	# Make config file for Octoprint
@@ -207,7 +189,7 @@ install_octoprint() {
 }
 
 install_octoprint_redeem() {
-	echo "**install_octoprint_redeem**" 
+	echo "**install_octoprint_redeem**"
 	cd /usr/src/
 	if [ ! -d "octoprint_redeem" ]; then
 		git clone --depth 1 https://github.com/eliasbakken/octoprint_redeem
@@ -217,7 +199,7 @@ install_octoprint_redeem() {
 }
 
 install_octoprint_toggle() {
-	echo "**install_octoprint_toggle**" 
+	echo "**install_octoprint_toggle**"
 	cd /usr/src
 	if [ ! -d "octoprint_toggle" ]; then
 		git clone --depth 1 https://github.com/eliasbakken/octoprint_toggle
@@ -227,17 +209,17 @@ install_octoprint_toggle() {
 }
 
 install_overlays() {
-	echo "**install_overlays**" 
+	echo "**install_overlays**"
 	cd /usr/src/
 	if [ ! -d "bb.org-overlays" ]; then
 		git clone --depth 1 https://github.com/eliasbakken/bb.org-overlays
 	fi
 	cd bb.org-overlays
-	./install.sh 
+	./install.sh
 }
 
 install_sgx() {
-	echo "** install SGX **" 
+	echo "** install SGX **"
 	cd /usr/src/Kamikaze2
 	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
 	cd /opt/gfxinstall/
@@ -251,7 +233,7 @@ install_sgx() {
 
 
 install_toggle() {
-	echo "** install toggle **" 
+	echo "** install toggle **"
 	cd /usr/src
     	if [ ! -d "toggle" ]; then
 		git clone --depth 1 https://bitbucket.org/intelligentagent/toggle
@@ -267,14 +249,15 @@ install_toggle() {
 }
 
 install_cura() {
-	echo "** install Cura **" 
+	echo "** install Cura **"
 	cd /usr/src/
 	if [ ! -d "CuraEngine" ]; then
-		git clone --depth 1 https://github.com/Ultimaker/CuraEngine
+		wget https://github.com/Ultimaker/CuraEngine/archive/15.04.6.zip
+		unzip 15.04.6.zip
+		rm 15.04.6.zip
 	fi
-	cd CuraEngine/
-	git checkout  tags/15.04.6 -b tmp
-	# Do perimeters first 
+	cd CuraEngine-15.04.6/
+	# Do perimeters first
 	sed -i 's/SETTING(perimeterBeforeInfill, 0);/SETTING(perimeterBeforeInfill, 1);/' src/settings.cpp
 	make
 	cp build/CuraEngine /usr/bin/
@@ -294,11 +277,11 @@ install_uboot() {
 	dd if=./u-boot/MLO of=${DISK} count=1 seek=1 bs=128k
 	dd if=./u-boot/u-boot.img of=${DISK} count=2 seek=1 bs=384k
     cp ./u-boot/MLO /boot/uboot/
-    cp ./u-boot/u-boot.img /boot/uboot/ 
+    cp ./u-boot/u-boot.img /boot/uboot/
 }
 
 other() {
-	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt	
+	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt
 	sed -i 's/arm/kamikaze/' /etc/hostname
 	sed -i 's/arm/kamikaze/g' /etc/hosts
 	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
@@ -310,11 +293,34 @@ other() {
 	rm -rf /var/cache/doc*
 	apt-get -y autoremove
 	echo "$VERSION $DATE" > /etc/dogtag
+	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
+	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
+}
+
+install_usbreset {
+	cd $WD
+	cc usbreset.c -o usbreset
+	chmod +x usbreset
+	mv usbreset /usr/local/sbin/
+}
+
+install_smbd {
+	apt-get -y install samba
+	cat > /etc/samba/smb.conf <<EOL
+[public]
+path = /usr/share/models
+public = yes
+writable = yes
+comment = smb share
+printable = no
+guest ok = yes
+locking = no
+EOL
+	systemctl enable smbd
+	systemctl start smbd
 }
 
 dist() {
-	remove_unneeded_packages
-	install_repo
 	port_forwarding
 	install_dependencies
 	install_sgx
@@ -328,6 +334,8 @@ dist() {
 	install_cura
 	install_uboot
 	other
+	install_usbreset
+	install_smb
 }
 
 
