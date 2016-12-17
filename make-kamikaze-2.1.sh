@@ -304,6 +304,22 @@ install_usbreset {
 	mv usbreset /usr/local/sbin/
 }
 
+install_smbd {
+	apt-get -y install samba
+	cat > /etc/samba/smb.conf <<EOL
+[public]
+path = /usr/share/models
+public = yes
+writable = yes
+comment = smb share
+printable = no
+guest ok = yes
+locking = no
+EOL
+	systemctl enable smbd
+	systemctl start smbd
+}
+
 dist() {
 	port_forwarding
 	install_dependencies
@@ -318,6 +334,8 @@ dist() {
 	install_cura
 	install_uboot
 	other
+	install_usbreset
+	install_smb
 }
 
 
