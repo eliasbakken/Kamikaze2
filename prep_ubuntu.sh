@@ -1,5 +1,12 @@
 #!/bin/bash
 
+WD=/usr/src/Kamikaze2/
+
+network_fixes() {
+        cp $WD/interfaces /etc/network/
+        sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
+}
+
 prep_ubuntu() {
 	apt-get update
 	echo "** Preparing Ubuntu for kamikaze2 **"
@@ -33,6 +40,7 @@ EOL
 }
 
 prep() {
+	network_fixes
 	prep_ubuntu
 	remove_unneeded_packages
 	install_repo
