@@ -1,8 +1,8 @@
 #!/bin/bash
 
 prep_ubuntu() {
-  apt-get update
-  apt-get -y upgrade
+	apt-get update
+	apt-get -y upgrade
 	echo "** Preparing Ubuntu for kamikaze2 **"
 	cd /opt/scripts/tools/
 	git pull
