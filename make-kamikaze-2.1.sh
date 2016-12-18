@@ -297,14 +297,14 @@ other() {
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
 }
 
-install_usbreset {
+install_usbreset() {
 	cd $WD
 	cc usbreset.c -o usbreset
 	chmod +x usbreset
 	mv usbreset /usr/local/sbin/
 }
 
-install_smbd {
+install_smbd() {
 	apt-get -y install samba
 	cat > /etc/samba/smb.conf <<EOL
 [public]
@@ -335,7 +335,7 @@ dist() {
 	install_uboot
 	other
 	install_usbreset
-	install_smb
+	install_smbd
 }
 
 
