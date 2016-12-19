@@ -1,4 +1,4 @@
-#!/bin/bash
+/bash
 
 #
 # base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
@@ -306,18 +306,70 @@ install_usbreset() {
 
 install_smbd() {
 	apt-get -y install samba
-	cat > /etc/samba/smb.conf <<EOL
-[public]
-path = /usr/share/models
-public = yes
-writable = yes
-comment = smb share
-printable = no
-guest ok = yes
-locking = no
-EOL
+	cat > /etc/samba/smb.conf <<EOF
+	dns proxy = no
+	log file = /var/log/samba/log.%m
+	syslog = 0
+	panic action = /usr/share/samba/panic-action %d
+	server role = standalone server
+	passdb backend = tdbsam
+	obey pam restrictions = yes
+	unix password sync = yes
+	passwd program = /usr/bin/passwd %u
+	passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+	pam password change = yes
+	map to guest = bad user
+	usershare allow guests = yes
+
+	[homes]
+		comment = Home Directories
+		browseable = no
+		read only = no
+		create mask = 0777
+		directory mask = 0777
+		valid users = %S
+
+	[printers]
+		comment = All Printers
+		browseable = no
+		path = /var/spool/samba
+		printable = yes
+		guest ok = no
+		read only = yes
+		create mask = 0700
+
+	[print$]
+		comment = Printer Drivers
+		path = /var/lib/samba/printers
+		browseable = yes
+		read only = yes
+		guest ok = no
+	   
+	[public]
+		path = /usr/share/models
+		public = yes
+		writable = yes
+		comment = smb share
+		printable = no
+		guest ok = yes
+		locking = no
+EOF
 	systemctl enable smbd
 	systemctl start smbd
+}
+
+install_dummy_logging() {
+	apt-get install rungetty
+	useradd -m dummy
+	usermod -a -G systemd-journal dummy
+	echo "clear" >> /home/dummy/.profile
+	echo "journalctl -f" >> /home/dummy/.profile
+	text='ExecStart=-/sbin/getty -a dummy 115200 %I'
+	sed -i "/.*ExecStart*./ c $text" /etc/systemd/system/getty.target.wants/getty@tty1.service
+}
+
+fix_wlan() {
+	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
 }
 
 dist() {
@@ -336,10 +388,13 @@ dist() {
 	other
 	install_usbreset
 	install_smbd
+	install_dummy_logging
+	fix_wlan
 }
 
 
 dist
 
 echo "Now reboot!"
+
 
