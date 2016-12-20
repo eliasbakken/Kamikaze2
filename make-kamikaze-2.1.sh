@@ -1,4 +1,4 @@
-#!/bin/bash
+/bash
 
 #
 # base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
@@ -344,7 +344,6 @@ install_smbd() {
 		browseable = yes
 		read only = yes
 		guest ok = no
-
 	[public]
 		path = /usr/share/models
 		public = yes
@@ -397,30 +396,30 @@ EOL
 	systemctl start mjpg.service
 }
 
-
 dist() {
-#	port_forwarding
-#	install_dependencies
-#	install_sgx
-#	create_user
-#	install_redeem
-#	install_octoprint
-#	install_octoprint_redeem
-#	install_octoprint_toggle
-#	install_overlays
-#	install_toggle
-#	install_cura
-#	install_uboot
-#	other
-#	install_usbreset
-#	install_smbd
-#	install_dummy_logging
-#	fix_wlan
-	install_mjpgstreamer
+	port_forwarding
+	install_dependencies
+	install_sgx
+	create_user
+	install_redeem
+	install_octoprint
+	install_octoprint_redeem
+	install_octoprint_toggle
+	install_overlays
+	install_toggle
+	install_cura
+	install_uboot
+	other
+	install_usbreset
+	install_smbd
+	install_dummy_logging
+	fix_wlan
+  install_mjpgstreamer
 }
 
 
 dist
 
 echo "Now reboot!"
+
 
