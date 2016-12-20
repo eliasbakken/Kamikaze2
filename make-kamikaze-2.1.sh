@@ -240,12 +240,12 @@ install_toggle() {
     	fi
 	cd toggle
 	make install
-	chown -R octo:octo /etc/toggle/
 	# Make it writable for updates
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
 	systemctl start toggle
+	chown -R octo:octo /etc/toggle/
 }
 
 install_cura() {
@@ -344,7 +344,6 @@ install_smbd() {
 		browseable = yes
 		read only = yes
 		guest ok = no
-	   
 	[public]
 		path = /usr/share/models
 		public = yes
@@ -372,6 +371,31 @@ fix_wlan() {
 	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
 }
 
+install_mjpgstreamer() {
+	apt-get install -y cmake libjpeg62-dev
+	cd /usr/src/
+	git clone --depth 1 https://github.com/jacksonliam/mjpg-streamer
+	cd mjpg-streamer/mjpg-streamer-experimental
+	sed -i 's:add_subdirectory(plugins/input_raspicam):#add_subdirectory(plugins/input_raspicam):' CMakeLists.txt
+	make
+	make install
+	echo 'KERNEL=="video0", TAG+="systemd"' > /etc/udev/rules.d/50-video.rules
+	cat > /lib/systemd/system/mjpg.service << EOL
+[Unit]
+ Description=Mjpg streamer
+ Wants=dev-video0.device
+ After=dev-video0.device
+
+ [Service]
+ ExecStart=/usr/local/bin/mjpg_streamer -i "/usr/local/lib/mjpg-streamer/input_uvc.so" -o "/usr/local/lib/mjpg-streamer/output_http.so"
+
+ [Install]
+ WantedBy=basic.target
+EOL
+	systemctl enable mjpg.service
+	systemctl start mjpg.service
+}
+
 dist() {
 	port_forwarding
 	install_dependencies
@@ -390,6 +414,7 @@ dist() {
 	install_smbd
 	install_dummy_logging
 	fix_wlan
+  install_mjpgstreamer
 }
 
 
