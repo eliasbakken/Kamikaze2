@@ -372,6 +372,32 @@ fix_wlan() {
 	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
 }
 
+install_mjpgstreamer() {
+	apt-get install -y cmake libjpeg62-dev
+	cd /usr/src/
+	git clone --depth 1 https://github.com/jacksonliam/mjpg-streamer
+	cd mjpg-streamer/mjpg-streamer-experimental
+	sed -i 's:add_subdirectory(plugins/input_raspicam):#add_subdirectory(plugins/input_raspicam):' CMakeLists.txt
+	make
+	make install
+	echo 'KERNEL=="video0", TAG+="systemd"' > /etc/udev/rules.d/50-video.rules
+	cat > /lib/systemd/system/mjpg.service << EOL
+[Unit]
+ Description=Mjpg streamer
+ Wants=dev-video0.device
+ After=dev-video0.device
+
+ [Service]
+ ExecStart=/usr/local/bin/mjpg_streamer -i "/usr/local/lib/mjpg-streamer/input_uvc.so" -o "/usr/local/lib/mjpg-streamer/output_http.so"
+
+ [Install]
+ WantedBy=basic.target
+EOL
+	systemctl enable mjpg.service
+	systemctl start mjpg.service
+}
+
+
 dist() {
 #	port_forwarding
 #	install_dependencies
@@ -382,7 +408,7 @@ dist() {
 #	install_octoprint_redeem
 #	install_octoprint_toggle
 #	install_overlays
-	install_toggle
+#	install_toggle
 #	install_cura
 #	install_uboot
 #	other
@@ -390,6 +416,7 @@ dist() {
 #	install_smbd
 #	install_dummy_logging
 #	fix_wlan
+	install_mjpgstreamer
 }
 
 
