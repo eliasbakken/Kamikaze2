@@ -240,12 +240,12 @@ install_toggle() {
     	fi
 	cd toggle
 	make install
-	chown -R octo:octo /etc/toggle/
 	# Make it writable for updates
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
 	systemctl start toggle
+	chown -R octo:octo /etc/toggle/
 }
 
 install_cura() {
@@ -344,7 +344,7 @@ install_smbd() {
 		browseable = yes
 		read only = yes
 		guest ok = no
-	   
+
 	[public]
 		path = /usr/share/models
 		public = yes
@@ -373,23 +373,23 @@ fix_wlan() {
 }
 
 dist() {
-	port_forwarding
-	install_dependencies
-	install_sgx
-	create_user
-	install_redeem
-	install_octoprint
-	install_octoprint_redeem
-	install_octoprint_toggle
-	install_overlays
+#	port_forwarding
+#	install_dependencies
+#	install_sgx
+#	create_user
+#	install_redeem
+#	install_octoprint
+#	install_octoprint_redeem
+#	install_octoprint_toggle
+#	install_overlays
 	install_toggle
-	install_cura
-	install_uboot
-	other
-	install_usbreset
-	install_smbd
-	install_dummy_logging
-	fix_wlan
+#	install_cura
+#	install_uboot
+#	other
+#	install_usbreset
+#	install_smbd
+#	install_dummy_logging
+#	fix_wlan
 }
 
 
