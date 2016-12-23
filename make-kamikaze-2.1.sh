@@ -1,4 +1,4 @@
-#!/bin/bash
+/bash
 
 #
 # base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
@@ -240,12 +240,12 @@ install_toggle() {
     	fi
 	cd toggle
 	make install
-	chown -R octo:octo /etc/toggle/
 	# Make it writable for updates
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
 	systemctl start toggle
+	chown -R octo:octo /etc/toggle/
 }
 
 install_cura() {
@@ -297,27 +297,103 @@ other() {
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
 }
 
-install_usbreset {
+install_usbreset() {
 	cd $WD
 	cc usbreset.c -o usbreset
 	chmod +x usbreset
 	mv usbreset /usr/local/sbin/
 }
 
-install_smbd {
+install_smbd() {
 	apt-get -y install samba
-	cat > /etc/samba/smb.conf <<EOL
-[public]
-path = /usr/share/models
-public = yes
-writable = yes
-comment = smb share
-printable = no
-guest ok = yes
-locking = no
-EOL
+	cat > /etc/samba/smb.conf <<EOF
+	dns proxy = no
+	log file = /var/log/samba/log.%m
+	syslog = 0
+	panic action = /usr/share/samba/panic-action %d
+	server role = standalone server
+	passdb backend = tdbsam
+	obey pam restrictions = yes
+	unix password sync = yes
+	passwd program = /usr/bin/passwd %u
+	passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+	pam password change = yes
+	map to guest = bad user
+	usershare allow guests = yes
+
+	[homes]
+		comment = Home Directories
+		browseable = no
+		read only = no
+		create mask = 0777
+		directory mask = 0777
+		valid users = %S
+
+	[printers]
+		comment = All Printers
+		browseable = no
+		path = /var/spool/samba
+		printable = yes
+		guest ok = no
+		read only = yes
+		create mask = 0700
+
+	[print$]
+		comment = Printer Drivers
+		path = /var/lib/samba/printers
+		browseable = yes
+		read only = yes
+		guest ok = no
+	[public]
+		path = /usr/share/models
+		public = yes
+		writable = yes
+		comment = smb share
+		printable = no
+		guest ok = yes
+		locking = no
+EOF
 	systemctl enable smbd
 	systemctl start smbd
+}
+
+install_dummy_logging() {
+	apt-get install rungetty
+	useradd -m dummy
+	usermod -a -G systemd-journal dummy
+	echo "clear" >> /home/dummy/.profile
+	echo "journalctl -f" >> /home/dummy/.profile
+	text='ExecStart=-/sbin/getty -a dummy 115200 %I'
+	sed -i "/.*ExecStart*./ c $text" /etc/systemd/system/getty.target.wants/getty@tty1.service
+}
+
+fix_wlan() {
+	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
+}
+
+install_mjpgstreamer() {
+	apt-get install -y cmake libjpeg62-dev
+	cd /usr/src/
+	git clone --depth 1 https://github.com/jacksonliam/mjpg-streamer
+	cd mjpg-streamer/mjpg-streamer-experimental
+	sed -i 's:add_subdirectory(plugins/input_raspicam):#add_subdirectory(plugins/input_raspicam):' CMakeLists.txt
+	make
+	make install
+	echo 'KERNEL=="video0", TAG+="systemd"' > /etc/udev/rules.d/50-video.rules
+	cat > /lib/systemd/system/mjpg.service << EOL
+[Unit]
+ Description=Mjpg streamer
+ Wants=dev-video0.device
+ After=dev-video0.device
+
+ [Service]
+ ExecStart=/usr/local/bin/mjpg_streamer -i "/usr/local/lib/mjpg-streamer/input_uvc.so" -o "/usr/local/lib/mjpg-streamer/output_http.so"
+
+ [Install]
+ WantedBy=basic.target
+EOL
+	systemctl enable mjpg.service
+	systemctl start mjpg.service
 }
 
 dist() {
@@ -335,11 +411,15 @@ dist() {
 	install_uboot
 	other
 	install_usbreset
-	install_smb
+	install_smbd
+	install_dummy_logging
+	fix_wlan
+  install_mjpgstreamer
 }
 
 
 dist
 
 echo "Now reboot!"
+
 
