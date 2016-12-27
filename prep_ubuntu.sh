@@ -15,6 +15,7 @@ prep_ubuntu() {
 	sh update_kernel.sh --bone-kernel --lts-4_1
 	apt-get -y upgrade
 	apt-get -y install unzip iptables
+	mkdir -p /etc/pm/sleep.d
 	touch /etc/pm/sleep.d/wireless
 	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 }
