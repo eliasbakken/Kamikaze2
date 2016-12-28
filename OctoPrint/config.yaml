@@ -228,3 +228,19 @@ controls:
           max: 1
           min: -1
           step: 2
+actions:
+ - action: Restart Redeem
+   command: sudo systemctl restart redeem
+   name: Restart Redeem
+ - action: Restart Octoprint
+   command: sudo systemctl restart octoprint
+   name: Restart Octoprint
+ - action: Restart Toggle
+   command: sudo systemctl restart toggle
+   name: Restart Toggle
+- action: Shutdown
+   command: sudo shutdown -h now
+   name: Shutdown
+ - action: Reboot
+   command: sudo shutdown -r now
+   name: Reboot
