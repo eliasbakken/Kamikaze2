@@ -3,12 +3,15 @@
 WD=/usr/src/Kamikaze2/
 
 network_fixes() {
+	echo "Fixing network interface config..."
         cp $WD/interfaces /etc/network/
         sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
 }
 
 prep_ubuntu() {
+	echo "Upgrading packages"
 	apt-get update
+	apt-get -y upgrade
 	echo "** Preparing Ubuntu for kamikaze2 **"
 	cd /opt/scripts/tools/
 	git pull
@@ -32,6 +35,7 @@ remove_unneeded_packages() {
 }
 
 install_repo() {
+	echo "installing Kamikaze repo to the list"
 	cat >/etc/apt/sources.list.d/testing.list <<EOL
 #### Kamikaze ####
 deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main

@@ -1,4 +1,5 @@
-appearance: {}
+appearance:
+  name: Kamikaze 2.1.0 RC4
 feature: {}
 folder:
   uploads: /usr/share/models
