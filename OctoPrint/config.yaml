@@ -40,7 +40,10 @@ serial:
   timeout: {}
 system: {}
 temperature: {}
-webcam: {}
+webcam:
+  stream: http://kamikaze.local:8080/?action=stream
+  snapshot: http://kamikaze.local:8080/?action=snapshot
+  ffmpeg: /usr/bin/avconv
 controls:
   - name: Stepper current and microstepping
     layout: vertical
