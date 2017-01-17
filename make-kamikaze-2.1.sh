@@ -64,14 +64,14 @@ install_dependencies(){
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
 	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
-	apt-get install -y libegl1-sgx-omap3
+	apt-get install -y libegl1-sgx-omap3 libgles2-sgx-omap3
 	apt-get install -y \
 	python-pip \
 	python-dev \
 	network-manager \
 	swig \
 	socat \
-	ti-sgx-es8-modules-`uname -r` \
+  ti-sgx-es8-modules-`uname -r` \
 	libyaml-dev \
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
@@ -87,7 +87,8 @@ install_dependencies(){
 	libclutter-1.0-common \
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
-	libmx-bin
+	libmx-bin \
+  python-setuptools
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
