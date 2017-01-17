@@ -295,6 +295,8 @@ other() {
 	echo "$VERSION $DATE" > /etc/dogtag
 	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
+	date=$(date +"%d-%m-%Y")
+	cat "Kamikaze 2.1.0 $date" > /etc/kamikaze-release
 }
 
 install_usbreset() {
@@ -414,7 +416,7 @@ dist() {
 	install_smbd
 	install_dummy_logging
 	fix_wlan
-  install_mjpgstreamer
+	install_mjpgstreamer
 }
 
 
