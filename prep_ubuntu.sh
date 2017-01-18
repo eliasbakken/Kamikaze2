@@ -10,6 +10,8 @@ network_fixes() {
         git clone git://git.ti.com/wilink8-wlan/wl18xx_fw.git
         cp /usr/src/wl18xx_fw/wl18xx-fw-4.bin /lib/firmware/ti-connectivity/
         rm -rf /usr/src/wl18xx_fw/
+        dpkg -i $WD/network-manager_1.2.4-1_armhf.deb
+        apt-get -yf install
 }
 
 prep_ubuntu() {
