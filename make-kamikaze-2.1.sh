@@ -40,6 +40,8 @@
 # Sync Redeem master with develop.  	
 # Choose Toggle config
 
+# this defines the octoprint release tag version#
+OCTORELEASE="1.3.0"
 WD=`pwd`/
 VERSION="Kamikaze 2.1.0"
 DATE=`date`
@@ -158,6 +160,7 @@ install_octoprint() {
 	cd /home/octo
     if [ ! -d "OctoPrint" ]; then
 	    su - octo -c 'git clone --depth 1 https://github.com/foosel/OctoPrint.git'
+      su - octo -c "git checkout tags/${OCTORELEASE} -b master"
     fi
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
 	su - octo -c 'pip install https://github.com/Salandora/OctoPrint-FileManager/archive/master.zip --user'
