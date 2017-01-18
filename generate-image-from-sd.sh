@@ -30,6 +30,7 @@ echo "Removing UUID from /boot/uEnv.txt"
 mkdir /mnt/zero
 mount /dev/mmcblk1p1 /mnt/zero
 sed -ie '/^uuid=/d' /mnt/zero/boot/uEnv.txt
+sed -ie 's/#cmdline=init=\/opt\/scripts\/tools\/eMMC\/init-eMMC-flasher-v3.sh$/cmdline=init=\/opt\/scripts\/tools\/eMMC\/init-eMMC-flasher-v3.sh/' /boot/uEnv.txt
 echo
 
 # Likely not needed but for the sake of making the image smaller we defrag first
