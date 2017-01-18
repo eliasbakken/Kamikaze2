@@ -368,12 +368,6 @@ install_dummy_logging() {
 	sed -i "/.*ExecStart*./ c $text" /etc/systemd/system/getty.target.wants/getty@tty1.service
 }
 
-fix_wlan() {
-	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
-  dpkg -i $WD/network-manager_1.2.4-1_armhf.deb
-  apt-get -yf install
-}
-
 install_mjpgstreamer() {
 	apt-get install -y cmake libjpeg62-dev
 	cd /usr/src/
@@ -399,6 +393,12 @@ EOL
 	systemctl start mjpg.service
 }
 
+fix_wlan() {
+  sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
+  dpkg -i $WD/network-manager_1.2.4-1_armhf.deb
+  apt-get -yf install
+}
+
 dist() {
 	port_forwarding
 	install_dependencies
@@ -416,8 +416,8 @@ dist() {
 	install_usbreset
 	install_smbd
 	install_dummy_logging
-	fix_wlan
   install_mjpgstreamer
+  fix_wlan
 }
 
 
