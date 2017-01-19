@@ -26,11 +26,13 @@ read -rsp $'Press any key to continue...\n' -n1 key
 echo
 
 # This makes it so the image will boot on other BB not just the one it was built on
-echo "Removing UUID from /boot/uEnv.txt"
+echo "Removing UUID references and uncommenting flahser option from /boot/uEnv.txt"
 mkdir /mnt/zero
 mount /dev/mmcblk1p1 /mnt/zero
 sed -ie '/^uuid=/d' /mnt/zero/boot/uEnv.txt
 sed -ie 's/#cmdline=init=\/opt\/scripts\/tools\/eMMC\/init-eMMC-flasher-v3.sh$/cmdline=init=\/opt\/scripts\/tools\/eMMC\/init-eMMC-flasher-v3.sh/' /mnt/zero/boot/uEnv.txt
+echo "Removing WPA wifi access file just in case"
+rm -rf /mnt/zero/root/wpa.conf
 echo
 
 # Likely not needed but for the sake of making the image smaller we defrag first
