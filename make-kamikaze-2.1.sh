@@ -159,8 +159,7 @@ install_octoprint() {
 	echo "** Install OctoPrint **" 
 	cd /home/octo
     if [ ! -d "OctoPrint" ]; then
-	    su - octo -c 'git clone --depth 1 https://github.com/foosel/OctoPrint.git'
-      su - octo -c "git checkout tags/${OCTORELEASE}"
+	    su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
     fi
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
 	su - octo -c 'pip install https://github.com/Salandora/OctoPrint-FileManager/archive/master.zip --user'
