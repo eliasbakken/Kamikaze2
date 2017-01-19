@@ -399,6 +399,7 @@ fix_wlan() {
   sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
   dpkg -i $WD/network-manager_1.2.4-1_armhf.deb
   apt-get -yf install
+  cp $WD/interfaces /etc/network/
 }
 
 dist() {

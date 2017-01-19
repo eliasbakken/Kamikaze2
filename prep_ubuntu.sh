@@ -3,7 +3,6 @@
 WD=/usr/src/Kamikaze2/
 
 network_fixes() {
-        cp $WD/interfaces /etc/network/
         sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
         #add BBB wireless firmware for wireless boards.
         cd /usr/src/
