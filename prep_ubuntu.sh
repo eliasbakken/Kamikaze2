@@ -7,7 +7,7 @@ network_fixes() {
         sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
         #add BBB wireless firmware for wireless boards.
         cd /usr/src/
-        git clone git://git.ti.com/wilink8-wlan/wl18xx_fw.git
+        git clone --depth 1 git://git.ti.com/wilink8-wlan/wl18xx_fw.git
         cp /usr/src/wl18xx_fw/wl18xx-fw-4.bin /lib/firmware/ti-connectivity/
         rm -rf /usr/src/wl18xx_fw/
 }
