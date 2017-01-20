@@ -33,6 +33,9 @@ sed -ie '/^uuid=/d' /mnt/zero/boot/uEnv.txt
 sed -ie 's/#cmdline=init=\/opt\/scripts\/tools\/eMMC\/init-eMMC-flasher-v3.sh$/cmdline=init=\/opt\/scripts\/tools\/eMMC\/init-eMMC-flasher-v3.sh/' /mnt/zero/boot/uEnv.txt
 echo "Removing WPA wifi access file just in case"
 rm -rf /mnt/zero/root/wpa.conf
+echo "Clearing bash history"
+rm -rf /mnt/zero/root/.bash_history
+rm -rf /mnt/zero/home/ubuntu/.bash_history
 echo
 
 # Likely not needed but for the sake of making the image smaller we defrag first
@@ -127,4 +130,3 @@ echo
 # Talkie talkie
 echo "Image file generated on USB drive as Kamikaze-${kamiversion}.img.xz"
 echo "USB drive and MicroSD card can be removed safely now."
-echo "This BeagleBone has been imaged and can now either be shut down or used normally."
