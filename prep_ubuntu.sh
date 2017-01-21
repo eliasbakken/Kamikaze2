@@ -4,7 +4,6 @@ WD=/usr/src/Kamikaze2/
 
 network_fixes() {
 	echo "Fixing network interface config..."
-        cp $WD/interfaces /etc/network/
         sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
 }
 
