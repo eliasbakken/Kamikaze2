@@ -125,7 +125,7 @@ install_redeem() {
 	fi
 	cd redeem
 	git pull
-	make install
+	python setup.py clean install
 
 	# Make profiles uploadable via Octoprint
 	touch /etc/redeem/local.cfg
@@ -242,7 +242,7 @@ install_toggle() {
 		git clone --depth 1 https://bitbucket.org/intelligentagent/toggle
     	fi
 	cd toggle
-	make install
+	python setup.py clean install
 	# Make it writable for updates
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
