@@ -37,7 +37,7 @@ install_repo() {
 	echo "installing Kamikaze repo to the list"
 	cat >/etc/apt/sources.list.d/testing.list <<EOL
 #### Kamikaze ####
-deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
+deb [arch=armhf] http://kamikaze.thing-printer.com/ubuntu/ xenial main
 EOL
 	wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | apt-key add -
 	apt-get update
