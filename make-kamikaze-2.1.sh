@@ -41,9 +41,9 @@
 # Choose Toggle config
 
 # this defines the octoprint release tag version#
-OCTORELEASE="1.3.0"
+OCTORELEASE="1.3.1rc2"
 WD=`pwd`/
-VERSION="Kamikaze 2.1.0"
+VERSION="Kamikaze 2.1.1"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
