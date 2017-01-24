@@ -40,7 +40,7 @@ remove_unneeded_packages() {
 install_repo() {
 	cat >/etc/apt/sources.list.d/testing.list <<EOL
 #### Kamikaze ####
-deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
+deb [arch=armhf] http://kamikaze.thing-printer.com/ubuntu/ xenial main
 EOL
 	wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | apt-key add -
 	apt-get update
