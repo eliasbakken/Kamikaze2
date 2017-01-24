@@ -70,7 +70,7 @@ install_dependencies(){
 	apt-get install -y \
 	python-pip \
 	python-dev \
-	network-manager \
+	network-manager=1.2.2-0ubuntu0.16.04.3 \
 	swig \
 	socat \
   ti-sgx-es8-modules-`uname -r` \
@@ -91,6 +91,8 @@ install_dependencies(){
 	libcogl-common \
 	libmx-bin \
   python-setuptools
+  ## this method to get to the latest network-manger is a work around
+  apt-get upgrade -y network-manager
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
