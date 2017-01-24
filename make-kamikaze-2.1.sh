@@ -147,9 +147,9 @@ create_user() {
 	mkdir /home/octo/.octoprint
 	useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
 	chown -R octo:octo /home/octo
-	chown -R octo:octo /usr/local/lib/python2.7/dist-packages
+	chown -R octo:octo /usr/local/lib/python2.7/
 	chown -R octo:octo /usr/local/bin
-	chmod 755 -R /usr/local/lib/python2.7/dist-packages
+	chmod 755 -R /usr/local/lib/python2.7/
 }
 
 install_octoprint() {
@@ -159,6 +159,8 @@ install_octoprint() {
 	     #su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
 	     su - octo -c "git clone --depth 1 https://github.com/foosel/OctoPrint.git"
     fi
+	chown -R octo:octo /usr/local/lib/python2.7/dist-packages/
+	chown -R octo:octo /usr/local/bin/
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
 	su - octo -c 'pip install https://github.com/Salandora/OctoPrint-FileManager/archive/master.zip --user'
 	su - octo -c 'pip install https://github.com/kennethjiang/OctoPrint-Slicer/archive/master.zip --user'
