@@ -123,7 +123,7 @@ install_redeem() {
 	cd redeem
 	git pull
 	python setup.py clean install
-
+	cp -r configs /etc/redeem
 	# Make profiles uploadable via Octoprint
 	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
@@ -243,6 +243,7 @@ install_toggle() {
     	fi
 	cd toggle
 	python setup.py clean install
+	cp -r configs /etc/toggle
 	# Make it writable for updates
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
