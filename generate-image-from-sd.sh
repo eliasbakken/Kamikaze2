@@ -103,6 +103,7 @@ echo
 # Run one last defrag and zero of the free space before backing it up
 echo "Final defrag and zeroing partition free space."
 mount /dev/mmcblk1p1 /mnt/zero
+kamiversion=$(cat /mnt/zero/etc/dogtag | awk '{printf $2}')
 e4defrag /mnt/zero > /dev/null
 dd if=/dev/zero of=/mnt/zero/zeros
 rm -rf /mnt/zero/zeros
@@ -119,7 +120,6 @@ echo
 echo "Generating image file now."
 ddblocksize=$(fdisk -l /dev/mmcblk1 | grep Units: | awk '{printf $8}')
 ddcount=$(fdisk -l /dev/mmcblk1 | grep /dev/mmcblk1p1 | awk '{printf $4}')
-kamiversion=$(cat /etc/dogtag | awk '{printf $2}')
 mkdir /mnt/USB
 mount /dev/sda1 /mnt/USB
 dd if=/dev/mmcblk1 bs=${ddblocksize} count=${ddcount} | xz > /mnt/USB/Kamikaze-${kamiversion}.img.xz
