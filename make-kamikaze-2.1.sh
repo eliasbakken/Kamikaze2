@@ -1,4 +1,4 @@
-/bash
+#!/bin/bash
 
 #
 # base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
@@ -42,6 +42,7 @@
 
 WD=`pwd`/
 VERSION="Kamikaze 2.1.0"
+OCTORELEASE=1.3.1
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -156,8 +157,7 @@ install_octoprint() {
 	echo "** Install OctoPrint **" 
 	cd /home/octo
     if [ ! -d "OctoPrint" ]; then
-	     #su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
-	     su - octo -c "git clone --depth 1 https://github.com/foosel/OctoPrint.git"
+	     su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
     fi
 	chown -R octo:octo /usr/local/lib/python2.7/dist-packages/
 	chown -R octo:octo /usr/local/bin/
