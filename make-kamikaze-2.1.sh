@@ -92,7 +92,7 @@ install_dependencies(){
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
 
-	apt-get install -y network-manager=1.2.2
+	apt-get install -y network-manager=1.2.2-0ubuntu0.16.04.3
 	systemctl enable NetworkManager
 
 	wget https://github.com/beagleboard/am335x_pru_package/archive/master.zip
