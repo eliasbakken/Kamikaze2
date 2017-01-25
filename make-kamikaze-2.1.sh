@@ -91,8 +91,6 @@ install_dependencies(){
 	libcogl-common \
 	libmx-bin \
   python-setuptools
-  ## this method to get to the latest network-manger is a work around
-  apt-get upgrade -y network-manager
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
@@ -405,6 +403,8 @@ EOL
 fix_wlan() {
   sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
   cp $WD/interfaces /etc/network/
+  ## this method to get to the latest network-manger is a work around
+  apt-get upgrade -y network-manager
 }
 
 dist() {
