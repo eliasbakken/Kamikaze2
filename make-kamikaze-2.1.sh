@@ -1,7 +1,7 @@
-/bash
+#!/bin/bash
 
 #
-# base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
+# base is https://rcn-ee.com/rootfs/2017-01-13/microsd/bone-ubuntu-16.04.1-console-armhf-2017-01-13-2gb.img.xz
 #
 
 # TODO 2.1: 
@@ -70,7 +70,7 @@ install_dependencies(){
 	apt-get install -y \
 	python-pip \
 	python-dev \
-	network-manager=1.2.2-0ubuntu0.16.04.3 \
+	network-manager \
 	swig \
 	socat \
   ti-sgx-es8-modules-`uname -r` \
@@ -128,9 +128,8 @@ install_redeem() {
 	python setup.py clean install
 
 	# Make profiles uploadable via Octoprint
-	mkdir -p /etc/redeem
-  cp configs/*.cfg /etc/redeem/
-  cp data/*.cht /etc/redeem/
+  cp -r configs /etc/redeem
+  cp -r data /etc/redeem
   touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
 	chown -R octo:octo /usr/src/redeem/
@@ -248,7 +247,9 @@ install_toggle() {
     	fi
 	cd toggle
 	python setup.py clean install
+
 	# Make it writable for updates
+  cp -r configs /etc/toggle
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
@@ -404,7 +405,6 @@ fix_wlan() {
   sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
   cp $WD/interfaces /etc/network/
   ## this method to get to the latest network-manger is a work around
-  apt-get upgrade -y network-manager
 }
 
 dist() {
