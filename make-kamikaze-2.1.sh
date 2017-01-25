@@ -69,7 +69,6 @@ install_dependencies(){
 	apt-get install -y \
 	python-pip \
 	python-dev \
-	network-manager \
 	swig \
 	socat \
 	ti-sgx-es8-modules-`uname -r` \
@@ -92,6 +91,9 @@ install_dependencies(){
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
+
+	apt-get install network-manager=1.2.2
+	apt-get upgrade network-manager
 
 	wget https://github.com/beagleboard/am335x_pru_package/archive/master.zip
 	unzip master.zip
