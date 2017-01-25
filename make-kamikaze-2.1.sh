@@ -130,7 +130,10 @@ install_redeem() {
 	python setup.py clean install
 
 	# Make profiles uploadable via Octoprint
-	touch /etc/redeem/local.cfg
+	mkdir -p /etc/redeem
+  cp configs/*.cfg /etc/redeem/
+  cp data/*.cht /etc/redeem/
+  touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
 	chown -R octo:octo /usr/src/redeem/
 
