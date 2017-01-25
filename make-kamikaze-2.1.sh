@@ -1,4 +1,4 @@
-/bash
+#!/bin/bash
 
 #
 # base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
@@ -42,6 +42,7 @@
 
 WD=`pwd`/
 VERSION="Kamikaze 2.1.0"
+OCTORELEASE=1.3.1
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -122,8 +123,8 @@ install_redeem() {
 	fi
 	cd redeem
 	git pull
-	make install
-
+	python setup.py clean install
+	cp -r configs /etc/redeem
 	# Make profiles uploadable via Octoprint
 	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
@@ -147,17 +148,19 @@ create_user() {
 	mkdir /home/octo/.octoprint
 	useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
 	chown -R octo:octo /home/octo
-	chown -R octo:octo /usr/local/lib/python2.7/dist-packages
+	chown -R octo:octo /usr/local/lib/python2.7/
 	chown -R octo:octo /usr/local/bin
-	chmod 755 -R /usr/local/lib/python2.7/dist-packages
+	chmod 755 -R /usr/local/lib/python2.7/
 }
 
 install_octoprint() {
 	echo "** Install OctoPrint **" 
 	cd /home/octo
     if [ ! -d "OctoPrint" ]; then
-	    su - octo -c 'git clone --depth 1 https://github.com/foosel/OctoPrint.git'
+	     su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
     fi
+	chown -R octo:octo /usr/local/lib/python2.7/dist-packages/
+	chown -R octo:octo /usr/local/bin/
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
 	su - octo -c 'pip install https://github.com/Salandora/OctoPrint-FileManager/archive/master.zip --user'
 	su - octo -c 'pip install https://github.com/kennethjiang/OctoPrint-Slicer/archive/master.zip --user'
@@ -173,9 +176,9 @@ install_octoprint() {
 	chmod 777 /usr/share/models
 
 	# Grant octo redeem restart rights
-	echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem" >> /etc/sudoers
-	echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle" >> /etc/sudoers
-	echo "%octo ALL=NOPASSWD: /bin/systemctl restart octoprint" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /bin/systemctl restart octoprint.service" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /sbin/reboot" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /sbin/shutdown -h now" >> /etc/sudoers
 
@@ -239,7 +242,8 @@ install_toggle() {
 		git clone --depth 1 https://bitbucket.org/intelligentagent/toggle
     	fi
 	cd toggle
-	make install
+	python setup.py clean install
+	cp -r configs /etc/toggle
 	# Make it writable for updates
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
@@ -295,6 +299,8 @@ other() {
 	echo "$VERSION $DATE" > /etc/dogtag
 	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
+	date=$(date +"%d-%m-%Y")
+	cat "Kamikaze 2.1.0 $date" > /etc/kamikaze-release
 }
 
 install_usbreset() {
@@ -369,6 +375,7 @@ install_dummy_logging() {
 
 fix_wlan() {
 	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
+	cp $WD/interfaces /etc/network/
 }
 
 install_mjpgstreamer() {
@@ -414,7 +421,7 @@ dist() {
 	install_smbd
 	install_dummy_logging
 	fix_wlan
-  install_mjpgstreamer
+	install_mjpgstreamer
 }
 
 

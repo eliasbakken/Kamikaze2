@@ -3,18 +3,21 @@
 WD=/usr/src/Kamikaze2/
 
 network_fixes() {
-        cp $WD/interfaces /etc/network/
+	echo "Fixing network interface config..."
         sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
 }
 
 prep_ubuntu() {
+	echo "Upgrading packages"
 	apt-get update
+	apt-get -y upgrade
 	echo "** Preparing Ubuntu for kamikaze2 **"
 	cd /opt/scripts/tools/
 	git pull
 	sh update_kernel.sh --bone-kernel --lts-4_1
 	apt-get -y upgrade
 	apt-get -y install unzip iptables
+	mkdir -p /etc/pm/sleep.d
 	touch /etc/pm/sleep.d/wireless
 	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 }
@@ -31,10 +34,13 @@ remove_unneeded_packages() {
 }
 
 install_repo() {
+	echo "installing Kamikaze repo to the list"
 	cat >/etc/apt/sources.list.d/testing.list <<EOL
 #### Kamikaze ####
+#deb [arch=armhf] http://kamikaze.thing-printer.com/ubuntu/ xenial main
 deb [arch=armhf] http://kamikaze.thing-printer.com/debian/ stretch main
 EOL
+#	wget -q http://kamikaze.thing-printer.com/ubuntu/public.gpg -O- | apt-key add -
 	wget -q http://kamikaze.thing-printer.com/debian/public.gpg -O- | apt-key add -
 	apt-get update
 }
