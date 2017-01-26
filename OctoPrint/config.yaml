@@ -38,7 +38,11 @@ serial:
   baudrate: 115200
   port: /dev/octoprint_1
   timeout: {}
-system: {}
+server:
+  commands:
+    serverRestartCommand: sudo systemctl restart octoprint.service
+    systemRestartCommand: sudo reboot
+    systemShutdownCommand: sudo shutdown -h now
 temperature: {}
 webcam:
   stream: http://kamikaze.local:8080/?action=stream
