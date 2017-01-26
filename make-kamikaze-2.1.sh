@@ -41,7 +41,7 @@
 # Choose Toggle config
 
 # this defines the octoprint release tag version#
-OCTORELEASE="1.3.1rc2"
+OCTORELEASE="1.3.1"
 WD=`pwd`/
 VERSION="Kamikaze 2.1.1"
 DATE=`date`
