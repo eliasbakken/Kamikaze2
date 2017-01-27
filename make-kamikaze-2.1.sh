@@ -37,7 +37,7 @@
 # clear cache
 # Update dogtag
 # Update Redeem / Toggle
-# Sync Redeem master with develop.  	
+# Sync Redeem master with develop.  
 # Choose Toggle config
 
 # this defines the octoprint release tag version#
@@ -62,6 +62,14 @@ EOL
 	chmod +x /etc/network/if-pre-up.d/iptables
 }
 
+install_networkmanager(){
+  echo "** Install Network Manager 1.2.4 **"
+  #This module is a workaround for the network manager 1.2.4 install
+  wget http://launchpadlibrarian.net/299750846/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
+  dpkg -i ./network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
+  apt-get install -yf
+}
+
 install_dependencies(){
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
@@ -70,7 +78,7 @@ install_dependencies(){
 	apt-get install -y \
 	python-pip \
 	python-dev \
-	network-manager=1.2.2-0ubuntu0.16.04.3 \
+#	network-manager \
 	swig \
 	socat \
   ti-sgx-es8-modules-`uname -r` \
@@ -89,10 +97,7 @@ install_dependencies(){
 	libclutter-1.0-common \
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
-	libmx-bin \
-  python-setuptools
-  #must be done due to 1.2.4 of network manager failing to write configs during install, need older version to install first
-  apt-get upgrade -y network-manager
+	libmx-bin
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
@@ -117,6 +122,7 @@ install_dependencies(){
 	apt-get purge -y \
 	linux-image-4.4.30-ti-r66\
 	rtl8723bu-modules-4.4.30-ti-r66
+  apt-get autoremove -y
 }
 
 install_redeem() {
@@ -406,11 +412,11 @@ EOL
 fix_wlan() {
   sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
   cp $WD/interfaces /etc/network/
-  ## this method to get to the latest network-manger is a work around
 }
 
 dist() {
 	port_forwarding
+  install_networkmanager
 	install_dependencies
 	install_sgx
 	create_user

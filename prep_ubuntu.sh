@@ -9,12 +9,6 @@ network_fixes() {
         git clone --depth 1 git://git.ti.com/wilink8-wlan/wl18xx_fw.git
         cp /usr/src/wl18xx_fw/wl18xx-fw-4.bin /lib/firmware/ti-connectivity/
         rm -rf /usr/src/wl18xx_fw/
-        #Prevent wifi from being network manager controlled
-        cat >>/etc/network/interfaces <<EOL
-
-auto wlan0
-  iface wlan0 inet dhcp
-EOL
 }
 
 prep_ubuntu() {
