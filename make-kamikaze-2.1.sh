@@ -96,8 +96,8 @@ install_dependencies(){
 	libclutter-1.0-common \
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
-	libmx-bin \
-  network-manager=1.2.2-0ubuntu0.16.04.3
+	libmx-bin
+
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
@@ -408,6 +408,7 @@ EOL
 }
 
 fix_wlan() {
+  apt-get -y install   network-manager=1.2.2-0ubuntu0.16.04.3
   sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
   cp $WD/interfaces /etc/network/
 }
@@ -431,7 +432,7 @@ dist() {
 	install_smbd
 	install_dummy_logging
 	install_mjpgstreamer
-  fix_wlan
+	fix_wlan
 }
 
 
