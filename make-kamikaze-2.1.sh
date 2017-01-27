@@ -87,13 +87,11 @@ install_dependencies(){
 	libclutter-1.0-common \
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
-	libmx-bin
+	libmx-bin \
+  network-manager=1.2.2-0ubuntu0.16.04.3
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
-
-	apt-get install -y network-manager=1.2.2-0ubuntu0.16.04.3
-	systemctl enable NetworkManager
 
 	wget https://github.com/beagleboard/am335x_pru_package/archive/master.zip
 	unzip master.zip
@@ -375,11 +373,6 @@ install_dummy_logging() {
 	sed -i "/.*ExecStart*./ c $text" /etc/systemd/system/getty.target.wants/getty@tty1.service
 }
 
-fix_wlan() {
-	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
-	cp $WD/interfaces /etc/network/
-}
-
 install_mjpgstreamer() {
 	apt-get install -y cmake libjpeg62-dev
 	cd /usr/src/
@@ -405,6 +398,11 @@ EOL
 	systemctl start mjpg.service
 }
 
+fix_wlan() {
+  sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
+  cp $WD/interfaces /etc/network/
+}
+
 dist() {
 	port_forwarding
 	install_dependencies
@@ -422,8 +420,8 @@ dist() {
 	install_usbreset
 	install_smbd
 	install_dummy_logging
-	fix_wlan
 	install_mjpgstreamer
+  fix_wlan
 }
 
 
