@@ -61,6 +61,15 @@ EOL
 	chmod +x /etc/network/if-pre-up.d/iptables
 }
 
+ensure_network() {
+  echo "** Ensuring network connectivity **"
+  #This is necessary due to the Network Manager install in the install_dependencies module
+  #It will prevent Network Manager from taking over the connection while it is still in use
+  #This file will be overwritten at the end of this script
+  sed -i 's/^#auto eth0/auto eth0/' /etc/network/interfaces
+  sed -i 's/^#iface eth0 inet dhcp/iface eth0 inet dhcp/' /etc/network/interfaces
+}
+
 install_dependencies(){
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
@@ -405,6 +414,7 @@ fix_wlan() {
 
 dist() {
 	port_forwarding
+  ensure_network
 	install_dependencies
 	install_sgx
 	create_user
