@@ -20,6 +20,7 @@ prep_ubuntu() {
 	mkdir -p /etc/pm/sleep.d
 	touch /etc/pm/sleep.d/wireless
 	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+	apt-get purge linux-image-4.4.40-ti-r80 linux-image-4.9.3-armv7-x4
 }
 
 remove_unneeded_packages() {
