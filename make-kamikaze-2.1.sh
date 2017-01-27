@@ -78,7 +78,6 @@ install_dependencies(){
 	apt-get install -y \
 	python-pip \
 	python-dev \
-#	network-manager \
 	swig \
 	socat \
   ti-sgx-es8-modules-`uname -r` \
@@ -97,7 +96,10 @@ install_dependencies(){
 	libclutter-1.0-common \
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
-	libmx-bin
+	libmx-bin #\
+# network-manager
+  #Uncomment network manager above and uncomment the \ on the line above it when the 1.2.4 network manager is in standard repos.
+  #Remove the install_network manager module from the script, and remove this comment block.
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
