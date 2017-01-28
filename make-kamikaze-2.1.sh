@@ -69,6 +69,11 @@ ensure_network() {
   #This file will be overwritten at the end of this script
   sed -i 's/^#auto eth0/auto eth0/' /etc/network/interfaces
   sed -i 's/^#iface eth0 inet dhcp/iface eth0 inet dhcp/' /etc/network/interfaces
+  cat >>/etc/network/interfaces <<EOL
+
+auto wlan0
+iface wlan0 inet dhcp
+EOL
 }
 
 install_networkmanager(){
