@@ -46,11 +46,18 @@ EOL
 	apt-get update
 }
 
+fix_wlan() {
+  apt-get -y install network-manager=1.2.2-0ubuntu0.16.04.3
+  sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
+  cp $WD/interfaces /etc/network/
+}
+
 prep() {
 	network_fixes
 	prep_ubuntu
 	remove_unneeded_packages
 	install_repo
+	fix_wlan
 }
 
 prep
