@@ -33,7 +33,7 @@
 # redeem starts after spidev2.1
 # Adafruit lib disregard overlay (Swithed to spidev)
 # cura engine
-# iptables-persistenthttps://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
+# iptables-persistent https://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
 # clear cache
 # Update dogtag
 # Update Redeem / Toggle

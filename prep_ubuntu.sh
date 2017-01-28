@@ -52,12 +52,18 @@ fix_wlan() {
   cp $WD/interfaces /etc/network/
 }
 
+cleanup() {
+	apt-get remove -y libgtk-3-common
+	apt-get autoremove -y
+}
+
 prep() {
 	network_fixes
 	prep_ubuntu
 	remove_unneeded_packages
 	install_repo
 	fix_wlan
+	cleanup
 }
 
 prep
