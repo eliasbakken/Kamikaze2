@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
+# base is https://rcn-ee.com/rootfs/2017-01-13/microsd/bone-ubuntu-16.04.1-console-armhf-2017-01-13-2gb.img.xz
 #
 
 # TODO 2.1: 
@@ -37,11 +37,13 @@
 # clear cache
 # Update dogtag
 # Update Redeem / Toggle
-# Sync Redeem master with develop.  	
+# Sync Redeem master with develop.  
 # Choose Toggle config
 
+# this defines the octoprint release tag version#
+OCTORELEASE="1.3.1"
 WD=`pwd`/
-VERSION="Kamikaze 2.1.0"
+VERSION="Kamikaze 2.1.1"
 OCTORELEASE=1.3.1
 DATE=`date`
 echo "**Making ${VERSION}**"
@@ -76,13 +78,13 @@ install_dependencies(){
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
 	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
-	apt-get install -y libegl1-sgx-omap3
+	apt-get install -y libegl1-sgx-omap3 libgles2-sgx-omap3
 	apt-get install -y \
 	python-pip \
 	python-dev \
 	swig \
 	socat \
-	ti-sgx-es8-modules-`uname -r` \
+  ti-sgx-es8-modules-`uname -r` \
 	libyaml-dev \
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
@@ -124,6 +126,7 @@ install_dependencies(){
 	apt-get purge -y \
 	linux-image-4.4.30-ti-r66\
 	rtl8723bu-modules-4.4.30-ti-r66
+  apt-get autoremove -y
 }
 
 install_redeem() {
@@ -135,8 +138,9 @@ install_redeem() {
 	cd redeem
 	git pull
 	python setup.py clean install
-	cp -r configs /etc/redeem
 	# Make profiles uploadable via Octoprint
+	cp -r configs /etc/redeem
+	cp -r data /etc/redeem
 	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
 	chown -R octo:octo /usr/src/redeem/
@@ -254,8 +258,8 @@ install_toggle() {
     	fi
 	cd toggle
 	python setup.py clean install
-	cp -r configs /etc/toggle
 	# Make it writable for updates
+	cp -r configs /etc/toggle
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
@@ -407,6 +411,11 @@ install_mjpgstreamer() {
 EOL
 	systemctl enable mjpg.service
 	systemctl start mjpg.service
+}
+
+fix_wlan() {
+  sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
+  cp $WD/interfaces /etc/network/
 }
 
 dist() {

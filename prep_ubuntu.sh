@@ -5,6 +5,11 @@ WD=/usr/src/Kamikaze2/
 network_fixes() {
 	echo "Fixing network interface config..."
         sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
+        #add BBB wireless firmware for wireless boards.
+        cd /usr/src/
+        git clone --depth 1 git://git.ti.com/wilink8-wlan/wl18xx_fw.git
+        cp /usr/src/wl18xx_fw/wl18xx-fw-4.bin /lib/firmware/ti-connectivity/
+        rm -rf /usr/src/wl18xx_fw/
 }
 
 prep_ubuntu() {
@@ -14,7 +19,7 @@ prep_ubuntu() {
 	echo "** Preparing Ubuntu for kamikaze2 **"
 	cd /opt/scripts/tools/
 	git pull
-	sh update_kernel.sh --bone-kernel --lts-4_1
+	sh update_kernel.sh --bone-kernel --lts-4_4
 	apt-get -y upgrade
 	apt-get -y install unzip iptables
 	mkdir -p /etc/pm/sleep.d

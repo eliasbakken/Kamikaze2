@@ -26,10 +26,16 @@ read -rsp $'Press any key to continue...\n' -n1 key
 echo
 
 # This makes it so the image will boot on other BB not just the one it was built on
-echo "Removing UUID from /boot/uEnv.txt"
+echo "Removing UUID references and uncommenting flahser option from /boot/uEnv.txt"
 mkdir /mnt/zero
 mount /dev/mmcblk1p1 /mnt/zero
 sed -ie '/^uuid=/d' /mnt/zero/boot/uEnv.txt
+sed -ie 's/#cmdline=init=\/opt\/scripts\/tools\/eMMC\/init-eMMC-flasher-v3.sh$/cmdline=init=\/opt\/scripts\/tools\/eMMC\/init-eMMC-flasher-v3.sh/' /mnt/zero/boot/uEnv.txt
+echo "Removing WPA wifi access file just in case"
+rm -rf /mnt/zero/root/wpa.conf
+echo "Clearing bash history"
+rm -rf /mnt/zero/root/.bash_history
+rm -rf /mnt/zero/home/ubuntu/.bash_history
 echo
 
 # Likely not needed but for the sake of making the image smaller we defrag first
@@ -97,6 +103,7 @@ echo
 # Run one last defrag and zero of the free space before backing it up
 echo "Final defrag and zeroing partition free space."
 mount /dev/mmcblk1p1 /mnt/zero
+kamiversion=$(cat /mnt/zero/etc/dogtag | awk '{printf $2}')
 e4defrag /mnt/zero > /dev/null
 dd if=/dev/zero of=/mnt/zero/zeros
 rm -rf /mnt/zero/zeros
@@ -113,7 +120,6 @@ echo
 echo "Generating image file now."
 ddblocksize=$(fdisk -l /dev/mmcblk1 | grep Units: | awk '{printf $8}')
 ddcount=$(fdisk -l /dev/mmcblk1 | grep /dev/mmcblk1p1 | awk '{printf $4}')
-kamiversion=$(cat /etc/dogtag | awk '{printf $2}')
 mkdir /mnt/USB
 mount /dev/sda1 /mnt/USB
 dd if=/dev/mmcblk1 bs=${ddblocksize} count=${ddcount} | xz > /mnt/USB/Kamikaze-${kamiversion}.img.xz
@@ -124,4 +130,3 @@ echo
 # Talkie talkie
 echo "Image file generated on USB drive as Kamikaze-${kamiversion}.img.xz"
 echo "USB drive and MicroSD card can be removed safely now."
-echo "This BeagleBone has been imaged and can now either be shut down or used normally."
