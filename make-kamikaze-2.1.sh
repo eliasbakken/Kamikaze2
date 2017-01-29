@@ -413,6 +413,15 @@ EOL
 	systemctl start mjpg.service
 }
 
+rename_ssh() {
+	cat > /etc/issue.net << EOL
+$VERSION
+rcn-ee.net console Ubuntu Image 2017-01-13
+
+Check that nothing is printing before any CPU/disk intensive operations!
+EOL
+}
+
 fix_wlan() {
   sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
   cp $WD/interfaces /etc/network/
@@ -437,6 +446,8 @@ dist() {
 	install_smbd
 	install_dummy_logging
 	install_mjpgstreamer
+	rename_ssh
+	fix_wlan
 }
 
 
