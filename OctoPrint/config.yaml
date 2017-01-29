@@ -2,7 +2,7 @@ actions: {}
 api:
   key: 43914750914748C89E65190FA6A36F3F
 appearance: 
-  name: Kamikaze_2.1.0_RC4
+  name: "Kamikaze 2.1.0"
 controls:
 - children:
   - commands:
@@ -204,11 +204,6 @@ plugins:
     check_providers:
       slicer: slicer
     checks:
-      Kamikaze:
-        checkout_folder: /usr/src/Kamikaze2
-        restart: echo "Kamikaze dummy restart"
-        type: git_commit
-        update_script: /usr/src/Kamikaze2/update-kamikaze.sh
       Redeem:
         checkout_folder: /usr/src/redeem
         restart: echo "Redeem dummy restart"

@@ -33,7 +33,7 @@
 # redeem starts after spidev2.1
 # Adafruit lib disregard overlay (Swithed to spidev)
 # cura engine
-# iptables-persistenthttps://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
+# iptables-persistent https://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
 # clear cache
 # Update dogtag
 # Update Redeem / Toggle
@@ -61,7 +61,18 @@ EOL
 	chmod +x /etc/network/if-pre-up.d/iptables
 }
 
+ensure_network() {
+  echo "** Ensuring network connectivity **"
+  #This is necessary due to the Network Manager install in the install_dependencies module
+  #It will prevent Network Manager from taking over the connection while it is still in use
+  #This file will be overwritten at the end of this script
+  sed -i 's/^#auto eth0/auto eth0/' /etc/network/interfaces
+  sed -i 's/^#iface eth0 inet dhcp/iface eth0 inet dhcp/' /etc/network/interfaces
+}
+
 install_dependencies(){
+	echo "** Removing old kernels **"
+	apt-get purge -y linux-image-4.4.43-ti-r84 linux-image-4.9.5-armv7-x4
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
 	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
@@ -69,7 +80,6 @@ install_dependencies(){
 	apt-get install -y \
 	python-pip \
 	python-dev \
-	network-manager \
 	swig \
 	socat \
 	ti-sgx-es8-modules-`uname -r` \
@@ -89,6 +99,7 @@ install_dependencies(){
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
 	libmx-bin
+
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
@@ -300,7 +311,7 @@ other() {
 	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
 	date=$(date +"%d-%m-%Y")
-	cat "Kamikaze 2.1.0 $date" > /etc/kamikaze-release
+	echo "Kamikaze 2.1.0 $date" > /etc/kamikaze-release
 }
 
 install_usbreset() {
@@ -373,11 +384,6 @@ install_dummy_logging() {
 	sed -i "/.*ExecStart*./ c $text" /etc/systemd/system/getty.target.wants/getty@tty1.service
 }
 
-fix_wlan() {
-	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
-	cp $WD/interfaces /etc/network/
-}
-
 install_mjpgstreamer() {
 	apt-get install -y cmake libjpeg62-dev
 	cd /usr/src/
@@ -405,6 +411,7 @@ EOL
 
 dist() {
 	port_forwarding
+	ensure_network
 	install_dependencies
 	install_sgx
 	create_user
@@ -420,7 +427,6 @@ dist() {
 	install_usbreset
 	install_smbd
 	install_dummy_logging
-	fix_wlan
 	install_mjpgstreamer
 }
 
