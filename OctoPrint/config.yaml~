@@ -1,8 +1,0 @@
-cura:
-  config: /etc/cura/printer.ini
-  path: /usr/share/cura/cura.sh
-folder:
-  uploads: /usr/share/models
-serial:
- additionalPorts:
-   - /dev/octoprint_1

@@ -1,37 +1,38 @@
-appearance:
-  name: Kamikaze 2.1.1
+actions: {}
+api:
+  key: 43914750914748C89E65190FA6A36F3F
+appearance: 
+  name: "Kamikaze 2.1.1"
+
 feature: {}
 folder:
   uploads: /usr/share/models
 gcodeViewer: {}
 plugins:
   cura:
-    _config_version: null
     cura_engine: /usr/bin/CuraEngine
-    debug_logging: false
-    default_profile: null
+  discovery:
+    upnpUuid: e828df1e-22e8-4201-8a84-1281df64b854
   softwareupdate:
     _config_version: 4
+    check_providers:
+      slicer: slicer
     checks:
       Redeem:
         checkout_folder: /usr/src/redeem
+        restart: echo "Redeem dummy restart"
         type: git_commit
-        update_script: '{python} "/usr/src/redeem/update-redeem.py" --python="{python}" --sudo "{folder}" "{target}"'
-        restart: 'echo "Redeem dummy restart"'
+        update_script: '{python} "/usr/src/redeem/update-redeem.py" --python="{python}"
+          --sudo "{folder}" "{target}"'
       Toggle:
         checkout_folder: /usr/src/toggle
+        restart: echo "Toggle dummy restart"
         type: git_commit
-        update_script: '{python} "/usr/src/toggle/update-toggle.py" --python="{python}" "{folder}" "{target}"'
-        restart: 'echo "Toggle dummy restart"'
+        update_script: '{python} "/usr/src/toggle/update-toggle.py" --python="{python}"
+          "{folder}" "{target}"'
       octoprint:
         checkout_folder: /home/octo/OctoPrint
         prerelease: false
-        type: github_release
-      Kamikaze:
-        checkout_folder: /usr/src/Kamikaze2
-        type: git_commit
-        update_script: '/usr/src/Kamikaze2/update-kamikaze.sh'
-        restart: 'echo "Kamikaze dummy restart"'
 printerParameters: {}
 serial:
   additionalPorts:
@@ -41,7 +42,6 @@ serial:
   timeout: {}
 server:
   commands:
-    serverRestartCommand: sudo systemctl restart octoprint.service
     systemRestartCommand: sudo reboot
     systemShutdownCommand: sudo shutdown -h now
 temperature: {}
@@ -236,3 +236,12 @@ controls:
           max: 1
           min: -1
           step: 2
+  secretKey: ZRXPeXLCqdsI7Isrx4E5W7Mvi5uXja3z
+system:
+  actions:
+  - action: restart_redeem
+    command: sudo systemctl restart redeem.service
+    name: Restart Redeem
+  - action: restart_toggle
+    command: sudo systemctl restart toggle.service
+    name: Restart Toggle

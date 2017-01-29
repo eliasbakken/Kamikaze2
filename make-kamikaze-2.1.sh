@@ -33,7 +33,7 @@
 # redeem starts after spidev2.1
 # Adafruit lib disregard overlay (Swithed to spidev)
 # cura engine
-# iptables-persistenthttps://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
+# iptables-persistent https://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
 # clear cache
 # Update dogtag
 # Update Redeem / Toggle
@@ -44,6 +44,7 @@
 OCTORELEASE="1.3.1"
 WD=`pwd`/
 VERSION="Kamikaze 2.1.1"
+OCTORELEASE=1.3.1
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -69,22 +70,11 @@ ensure_network() {
   #This file will be overwritten at the end of this script
   sed -i 's/^#auto eth0/auto eth0/' /etc/network/interfaces
   sed -i 's/^#iface eth0 inet dhcp/iface eth0 inet dhcp/' /etc/network/interfaces
-  cat >>/etc/network/interfaces <<EOL
-
-auto wlan0
-iface wlan0 inet dhcp
-EOL
-}
-
-install_networkmanager(){
-  echo "** Install Network Manager 1.2.4 **"
-  #This module is a workaround for the network manager 1.2.4 install
-  wget http://launchpadlibrarian.net/299750846/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
-  dpkg -i ./network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
-  apt-get install -yf
 }
 
 install_dependencies(){
+	echo "** Removing old kernels **"
+	apt-get purge -y linux-image-4.4.43-ti-r84 linux-image-4.9.5-armv7-x4
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
 	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
@@ -110,10 +100,8 @@ install_dependencies(){
 	libclutter-1.0-common \
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
-	libmx-bin #\
-# network-manager
-  #Uncomment network manager above and uncomment the \ on the line above it when the 1.2.4 network manager is in standard repos.
-  #Remove the install_network manager module from the script, and remove this comment block.
+	libmx-bin
+
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
@@ -150,11 +138,10 @@ install_redeem() {
 	cd redeem
 	git pull
 	python setup.py clean install
-
 	# Make profiles uploadable via Octoprint
-  cp -r configs /etc/redeem
-  cp -r data /etc/redeem
-  touch /etc/redeem/local.cfg
+	cp -r configs /etc/redeem
+	cp -r data /etc/redeem
+	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
 	chown -R octo:octo /usr/src/redeem/
 
@@ -185,10 +172,10 @@ install_octoprint() {
 	echo "** Install OctoPrint **" 
 	cd /home/octo
     if [ ! -d "OctoPrint" ]; then
-	    su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
+	     su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
     fi
-  chown -R octo:octo /usr/local/lib/python2.7/dist-packages/
-  chown -R octo:octo /usr/local/bin/
+	chown -R octo:octo /usr/local/lib/python2.7/dist-packages/
+	chown -R octo:octo /usr/local/bin/
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
 	su - octo -c 'pip install https://github.com/Salandora/OctoPrint-FileManager/archive/master.zip --user'
 	su - octo -c 'pip install https://github.com/kennethjiang/OctoPrint-Slicer/archive/master.zip --user'
@@ -271,9 +258,8 @@ install_toggle() {
     	fi
 	cd toggle
 	python setup.py clean install
-
 	# Make it writable for updates
-  cp -r configs /etc/toggle
+	cp -r configs /etc/toggle
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
@@ -328,6 +314,8 @@ other() {
 	echo "$VERSION $DATE" > /etc/dogtag
 	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
+	date=$(date +"%d-%m-%Y")
+	echo "Kamikaze 2.1.0 $date" > /etc/kamikaze-release
 }
 
 install_usbreset() {
@@ -432,8 +420,7 @@ fix_wlan() {
 
 dist() {
 	port_forwarding
-  ensure_network
-  install_networkmanager
+	ensure_network
 	install_dependencies
 	install_sgx
 	create_user
@@ -449,8 +436,7 @@ dist() {
 	install_usbreset
 	install_smbd
 	install_dummy_logging
-  install_mjpgstreamer
-  fix_wlan
+	install_mjpgstreamer
 }
 
 
