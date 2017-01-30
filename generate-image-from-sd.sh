@@ -93,8 +93,8 @@ rm -rf /shrink.layout
 
 # Make sure the system sees the new partition layout, check the file system for issues
 #   and then resize the file system to the full size of the new partition if it is needed
-echo "Probing partitions"
-partprobe
+echo "Re-read partition table"
+hdparm -z /dev/mmcblk1
 e2fsck -f /dev/mmcblk1p1
 resize2fs /dev/mmcblk1p1
 e2fsck -f /dev/mmcblk1p1
@@ -118,11 +118,12 @@ echo
 
 # Mounting the USB thumb drive and generating the compressed image file on it from the sd card
 echo "Generating image file now."
-ddblocksize=$(fdisk -l /dev/mmcblk1 | grep Units: | awk '{printf $8}')
-ddcount=$(fdisk -l /dev/mmcblk1 | grep /dev/mmcblk1p1 | awk '{printf $4}')
+blocksize=$(fdisk -l /dev/mmcblk1 | grep Units: | awk '{printf $8}')
+count=$(fdisk -l /dev/mmcblk1 | grep /dev/mmcblk1p1 | awk '{printf $4}')
+ddcount=$((count*blocksize/1000000+1))
 mkdir /mnt/USB
 mount /dev/sda1 /mnt/USB
-dd if=/dev/mmcblk1 bs=${ddblocksize} count=${ddcount} | xz > /mnt/USB/Kamikaze-${kamiversion}.img.xz
+dd if=/dev/mmcblk1 bs=1MB count=${ddcount} | xz > /mnt/USB/Kamikaze-${kamiversion}.img.xz
 umount /mnt/USB
 rm -rf /mnt/USB
 echo

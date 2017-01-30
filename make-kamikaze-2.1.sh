@@ -45,6 +45,7 @@ OCTORELEASE="1.3.1"
 WD=`pwd`/
 VERSION="Kamikaze 2.1.1"
 OCTORELEASE=1.3.1
+ROOTPASS="kamikaze"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -292,7 +293,7 @@ other() {
 	sed -i 's/arm/kamikaze/' /etc/hostname
 	sed -i 's/arm/kamikaze/g' /etc/hosts
 	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
-
+  echo "root:$ROOTPASS" | chpasswd
 	chown -R octo:octo /usr/src/Kamikaze2
 
 	apt-get clean
@@ -431,9 +432,7 @@ dist() {
 	rename_ssh
 }
 
-
 dist
 
 echo "Now reboot!"
-
 
