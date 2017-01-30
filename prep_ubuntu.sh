@@ -65,7 +65,7 @@ remove_unneeded_packages() {
 }
 
 cleanup() {
-	apt-get remove -y libgtk-3-common
+	apt-get remove -y libgtk-3-common bb-wl18xx-firmware
 	apt-get autoremove -y
 }
 
