@@ -63,18 +63,7 @@ EOL
 	chmod +x /etc/network/if-pre-up.d/iptables
 }
 
-ensure_network() {
-  echo "** Ensuring network connectivity **"
-  #This is necessary due to the Network Manager install in the install_dependencies module
-  #It will prevent Network Manager from taking over the connection while it is still in use
-  #This file will be overwritten at the end of this script
-  sed -i 's/^#auto eth0/auto eth0/' /etc/network/interfaces
-  sed -i 's/^#iface eth0 inet dhcp/iface eth0 inet dhcp/' /etc/network/interfaces
-}
-
 install_dependencies(){
-	echo "** Removing old kernels **"
-	apt-get purge -y linux-image-4.9.5-armv7-x4
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
 	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
@@ -123,10 +112,32 @@ install_dependencies(){
 	cp ../pasm /usr/bin/
 	chmod +x /usr/bin/pasm
 
-	apt-get purge -y \
-	linux-image-4.4.30-ti-r66\
-	rtl8723bu-modules-4.4.30-ti-r66
   apt-get autoremove -y
+}
+
+install_sgx() {
+  echo "** install SGX **"
+  cd /usr/src/Kamikaze2
+  tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
+  cd /opt/gfxinstall/
+  ./sgx-install.sh
+  cd /usr/src/Kamikaze2/
+  cp scripts/sgx-startup.service /lib/systemd/system/
+  systemctl enable sgx-startup.service
+  depmod -a `uname -r`
+  ln -s /usr/lib/libEGL.so /usr/lib/libEGL.so.1
+}
+
+create_user() {
+  echo "** Create user **"
+  default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
+  mkdir /home/octo/
+  mkdir /home/octo/.octoprint
+  useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
+  chown -R octo:octo /home/octo
+  chown -R octo:octo /usr/local/lib/python2.7/
+  chown -R octo:octo /usr/local/bin
+  chmod 755 -R /usr/local/lib/python2.7/
 }
 
 install_redeem() {
@@ -154,18 +165,6 @@ install_redeem() {
 	cp scripts/redeem.service /lib/systemd/system
 	systemctl enable redeem
 	systemctl start redeem
-}
-
-create_user() {
-	echo "** Create user **"
-	default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
-	mkdir /home/octo/
-	mkdir /home/octo/.octoprint
-	useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
-	chown -R octo:octo /home/octo
-	chown -R octo:octo /usr/local/lib/python2.7/
-	chown -R octo:octo /usr/local/bin
-	chmod 755 -R /usr/local/lib/python2.7/
 }
 
 install_octoprint() {
@@ -237,20 +236,6 @@ install_overlays() {
 	./install.sh
 }
 
-install_sgx() {
-	echo "** install SGX **"
-	cd /usr/src/Kamikaze2
-	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
-	cd /opt/gfxinstall/
-	./sgx-install.sh
-	cd /usr/src/Kamikaze2/
-	cp scripts/sgx-startup.service /lib/systemd/system/
-	systemctl enable sgx-startup.service
-	depmod -a `uname -r`
-	ln -s /usr/lib/libEGL.so /usr/lib/libEGL.so.1
-}
-
-
 install_toggle() {
 	echo "** install toggle **"
 	cd /usr/src
@@ -316,7 +301,7 @@ other() {
 	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
 	date=$(date +"%d-%m-%Y")
-	echo "Kamikaze 2.1.0 $date" > /etc/kamikaze-release
+  echo "$VERSION $date" > /etc/kamikaze-release
 }
 
 install_usbreset() {
@@ -423,14 +408,8 @@ Check that nothing is printing before any CPU/disk intensive operations!
 EOL
 }
 
-fix_wlan() {
-  sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
-  cp $WD/interfaces /etc/network/
-}
-
 dist() {
 	port_forwarding
-	ensure_network
 	install_dependencies
 	install_sgx
 	create_user
@@ -448,7 +427,6 @@ dist() {
 	install_dummy_logging
 	install_mjpgstreamer
 	rename_ssh
-	fix_wlan
 }
 
 

@@ -4,12 +4,7 @@ WD=/usr/src/Kamikaze2/
 
 network_fixes() {
 	echo "Fixing network interface config..."
-        sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
-        #add BBB wireless firmware for wireless boards.
-        cd /usr/src/
-        git clone --depth 1 git://git.ti.com/wilink8-wlan/wl18xx_fw.git
-        cp /usr/src/wl18xx_fw/wl18xx-fw-4.bin /lib/firmware/ti-connectivity/
-        rm -rf /usr/src/wl18xx_fw/
+  sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
 }
 
 prep_ubuntu() {
@@ -22,21 +17,7 @@ prep_ubuntu() {
 	sh update_kernel.sh --bone-kernel --lts-4_4
 	apt-get -y upgrade
 	apt-get -y install unzip iptables
-	mkdir -p /etc/pm/sleep.d
-	touch /etc/pm/sleep.d/wireless
 	sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-	apt-get purge -y linux-image-4.4.40-ti-r80 linux-image-4.9.3-armv7-x4
-}
-
-remove_unneeded_packages() {
-	echo "** Remove unneded packages **" 
-
-	rm -rf /etc/apache2/sites-enabled
-	rm -rf /root/.c9
-	rm -rf /usr/local/lib/node_modules
-	rm -rf /var/lib/cloud9
-	rm -rf /usr/lib/node_modules/
-	apt-get purge -y apache2 apache2-bin apache2-data apache2-utils
 }
 
 install_repo() {
@@ -51,10 +32,36 @@ EOL
 	apt-get update
 }
 
-fix_wlan() {
-  apt-get -y install network-manager=1.2.2-0ubuntu0.16.04.3
+wlan_fixes() {
+  echo "** Install wireless firmware **"
+  #add BBB wireless firmware for wireless boards.
+  git clone --depth 1 git://git.ti.com/wilink8-wlan/wl18xx_fw.git /usr/src/wl18xx_fw
+  cp /usr/src/wl18xx_fw/wl18xx-fw-4.bin /lib/firmware/ti-connectivity/
+  rm -rf /usr/src/wl18xx_fw/
+
+  echo "** Disable wireless power management **"
+  mkdir -p /etc/pm/sleep.d
+  touch /etc/pm/sleep.d/wireless
+
+  echo "** Install Network Manager 1.2.4 **"
+  #This module is a workaround for the network manager 1.2.4 install
+  wget http://launchpadlibrarian.net/299750846/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
+  dpkg -i ./network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
+  apt-get install -yf
   sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
   cp $WD/interfaces /etc/network/
+}
+
+remove_unneeded_packages() {
+  echo "** Remove unneded packages **"*
+  rm -rf /etc/apache2/sites-enabled
+  rm -rf /root/.c9
+  rm -rf /usr/local/lib/node_modules
+  rm -rf /var/lib/cloud9
+  rm -rf /usr/lib/node_modules/
+  apt-get purge -y apache2 apache2-bin apache2-data apache2-utils
+  echo "** Removing old kernels **"
+  apt-get purge -y linux-image-4.4.40-ti* linux-image-4.9* rtl8723bu-modules-4.4.30-ti* rtl8723bu-modules-4.9*
 }
 
 cleanup() {
@@ -65,9 +72,9 @@ cleanup() {
 prep() {
 	network_fixes
 	prep_ubuntu
-	remove_unneeded_packages
 	install_repo
-	fix_wlan
+	wlan_fixes
+  remove_unneeded_packages
 	cleanup
 }
 
