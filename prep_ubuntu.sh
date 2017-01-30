@@ -60,8 +60,6 @@ remove_unneeded_packages() {
   rm -rf /var/lib/cloud9
   rm -rf /usr/lib/node_modules/
   apt-get purge -y apache2 apache2-bin apache2-data apache2-utils
-  echo "** Removing old kernels **"
-  apt-get purge -y linux-image-4.4.40-ti* linux-image-4.9* rtl8723bu-modules-4.4.30-ti* rtl8723bu-modules-4.9*
 }
 
 cleanup() {
