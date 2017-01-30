@@ -74,7 +74,7 @@ ensure_network() {
 
 install_dependencies(){
 	echo "** Removing old kernels **"
-	apt-get purge -y linux-image-4.4.43-ti-r84 linux-image-4.9.5-armv7-x4
+	apt-get purge -y linux-image-4.9.5-armv7-x4
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
 	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
