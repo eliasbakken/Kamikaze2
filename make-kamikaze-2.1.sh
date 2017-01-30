@@ -289,6 +289,7 @@ install_uboot() {
 }
 
 other() {
+  echo "** Performing general actions **"
 	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt
 	sed -i 's/arm/kamikaze/' /etc/hostname
 	sed -i 's/arm/kamikaze/g' /etc/hosts
@@ -308,6 +309,7 @@ other() {
 }
 
 install_usbreset() {
+  echo "** Installing usbreset **"
 	cd $WD
 	cc usbreset.c -o usbreset
 	chmod +x usbreset
@@ -315,6 +317,7 @@ install_usbreset() {
 }
 
 install_smbd() {
+  echo "** Installing samba **"
 	apt-get -y install samba
 	cat > /etc/samba/smb.conf <<EOF
 	dns proxy = no
@@ -368,6 +371,7 @@ EOF
 }
 
 install_dummy_logging() {
+  echo "** Install dummy logging **"
 	apt-get install rungetty
 	useradd -m dummy
 	usermod -a -G systemd-journal dummy
@@ -378,6 +382,7 @@ install_dummy_logging() {
 }
 
 install_mjpgstreamer() {
+  echo "** Install mjpgstreamer **"
 	apt-get install -y cmake libjpeg62-dev
 	cd /usr/src/
 	git clone --depth 1 https://github.com/jacksonliam/mjpg-streamer
@@ -403,6 +408,7 @@ EOL
 }
 
 rename_ssh() {
+  echo "** Update SSH message **"
 	cat > /etc/issue.net << EOL
 $VERSION
 rcn-ee.net console Ubuntu Image 2017-01-13
