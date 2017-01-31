@@ -4,7 +4,7 @@ WD=/usr/src/Kamikaze2/
 
 network_fixes() {
 	echo "Fixing network interface config..."
-  sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
+	sed -i 's/After=network.target auditd.service/After=auditd.service/' /etc/systemd/system/multi-user.target.wants/ssh.service
 }
 
 prep_ubuntu() {
@@ -33,39 +33,39 @@ EOL
 }
 
 wlan_fixes() {
-  echo "** Install wireless firmware **"
-  #add BBB wireless firmware for wireless boards.
-  git clone --depth 1 git://git.ti.com/wilink8-wlan/wl18xx_fw.git /usr/src/wl18xx_fw
-  cp /usr/src/wl18xx_fw/wl18xx-fw-4.bin /lib/firmware/ti-connectivity/
-  rm -rf /usr/src/wl18xx_fw/
+	echo "** Install wireless firmware **"
+	#add BBB wireless firmware for wireless boards.
+	git clone --depth 1 git://git.ti.com/wilink8-wlan/wl18xx_fw.git /usr/src/wl18xx_fw
+	cp /usr/src/wl18xx_fw/wl18xx-fw-4.bin /lib/firmware/ti-connectivity/
+	rm -rf /usr/src/wl18xx_fw/
 
-  echo "** Disable wireless power management **"
-  mkdir -p /etc/pm/sleep.d
-  touch /etc/pm/sleep.d/wireless
+	echo "** Disable wireless power management **"
+	mkdir -p /etc/pm/sleep.d
+	touch /etc/pm/sleep.d/wireless
 
-  echo "** Install Network Manager 1.2.4 **"
-  #This module is a workaround for the network manager 1.2.4 install
-  wget http://launchpadlibrarian.net/299750846/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb -P $WD
-  apt-get -y remove connman
-  cat >/etc/resolv.conf <<EOL
+	echo "** Install Network Manager 1.2.4 **"
+	#This module is a workaround for the network manager 1.2.4 install
+	wget http://launchpadlibrarian.net/299750846/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb -P $WD
+	apt-get -y remove connman
+	cat >/etc/resolv.conf <<EOL
 #### Temporary resolv.conf file ####
 nameserver 8.8.8.8
 nameserver 8.8.4.4
 EOL
-  dpkg -i $WD/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
-  apt-get install -yf
-  sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
-  cp $WD/interfaces /etc/network/
+	dpkg -i $WD/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
+	apt-get install -yf
+	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
+	cp $WD/interfaces /etc/network/
 }
 
 remove_unneeded_packages() {
-  echo "** Remove unneded packages **"*
-  rm -rf /etc/apache2/sites-enabled
-  rm -rf /root/.c9
-  rm -rf /usr/local/lib/node_modules
-  rm -rf /var/lib/cloud9
-  rm -rf /usr/lib/node_modules/
-  apt-get purge -y apache2 apache2-bin apache2-data apache2-utils
+	echo "** Remove unneded packages **"*
+	rm -rf /etc/apache2/sites-enabled
+	rm -rf /root/.c9
+	rm -rf /usr/local/lib/node_modules
+	rm -rf /var/lib/cloud9
+	rm -rf /usr/lib/node_modules/
+	apt-get purge -y apache2 apache2-bin apache2-data apache2-utils
 }
 
 cleanup() {
@@ -78,10 +78,11 @@ prep() {
 	prep_ubuntu
 	install_repo
 	wlan_fixes
-  remove_unneeded_packages
+	remove_unneeded_packages
 	cleanup
 }
 
 prep
 
 echo "Now reboot into the new kernel and run make-kamikaze-2.1.sh"
+

@@ -65,8 +65,8 @@ EOL
 }
 
 install_dependencies(){
-  echo "** Removing old kernels **"
-  apt-get purge -y linux-image-4.4.40-ti* linux-image-4.9* rtl8723bu-modules-4.4.30-ti* rtl8723bu-modules-4.9*
+	echo "** Removing old kernels **"
+	apt-get purge -y linux-image-4.4.40-ti* linux-image-4.9* rtl8723bu-modules-4.4.30-ti* rtl8723bu-modules-4.9*
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
 	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
@@ -76,7 +76,7 @@ install_dependencies(){
 	python-dev \
 	swig \
 	socat \
-  ti-sgx-es8-modules-`uname -r` \
+	ti-sgx-es8-modules-`uname -r` \
 	libyaml-dev \
 	gir1.2-mash-0.3-0 \
 	gir1.2-mx-2.0 \
@@ -115,32 +115,32 @@ install_dependencies(){
 	cp ../pasm /usr/bin/
 	chmod +x /usr/bin/pasm
 
-  apt-get autoremove -y
+	apt-get autoremove -y
 }
 
 install_sgx() {
-  echo "** install SGX **"
-  cd /usr/src/Kamikaze2
-  tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
-  cd /opt/gfxinstall/
-  ./sgx-install.sh
-  cd /usr/src/Kamikaze2/
-  cp scripts/sgx-startup.service /lib/systemd/system/
-  systemctl enable sgx-startup.service
-  depmod -a `uname -r`
-  ln -s /usr/lib/libEGL.so /usr/lib/libEGL.so.1
+	echo "** install SGX **"
+	cd /usr/src/Kamikaze2
+	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
+	cd /opt/gfxinstall/
+	./sgx-install.sh
+	cd /usr/src/Kamikaze2/
+	cp scripts/sgx-startup.service /lib/systemd/system/
+	systemctl enable sgx-startup.service
+	depmod -a `uname -r`
+	ln -s /usr/lib/libEGL.so /usr/lib/libEGL.so.1
 }
 
 create_user() {
-  echo "** Create user **"
-  default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
-  mkdir /home/octo/
-  mkdir /home/octo/.octoprint
-  useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
-  chown -R octo:octo /home/octo
-  chown -R octo:octo /usr/local/lib/python2.7/
-  chown -R octo:octo /usr/local/bin
-  chmod 755 -R /usr/local/lib/python2.7/
+	echo "** Create user **"
+	default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
+	mkdir /home/octo/
+	mkdir /home/octo/.octoprint
+	useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
+	chown -R octo:octo /home/octo
+	chown -R octo:octo /usr/local/lib/python2.7/
+	chown -R octo:octo /usr/local/bin
+	chmod 755 -R /usr/local/lib/python2.7/
 }
 
 install_redeem() {
@@ -173,9 +173,9 @@ install_redeem() {
 install_octoprint() {
 	echo "** Install OctoPrint **" 
 	cd /home/octo
-    if [ ! -d "OctoPrint" ]; then
-	     su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
-    fi
+	if [ ! -d "OctoPrint" ]; then
+		su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
+	fi
 	chown -R octo:octo /usr/local/lib/python2.7/dist-packages/
 	chown -R octo:octo /usr/local/bin/
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
@@ -284,17 +284,18 @@ install_uboot() {
 	export DISK=/dev/mmcblk0
 	dd if=./u-boot/MLO of=${DISK} count=1 seek=1 bs=128k
 	dd if=./u-boot/u-boot.img of=${DISK} count=2 seek=1 bs=384k
-    cp ./u-boot/MLO /boot/uboot/
-    cp ./u-boot/u-boot.img /boot/uboot/
+	cp ./u-boot/MLO /boot/uboot/
+	cp ./u-boot/u-boot.img /boot/uboot/
 }
 
 other() {
-  echo "** Performing general actions **"
+	echo "** Performing general actions **"
 	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt
 	sed -i 's/arm/kamikaze/' /etc/hostname
 	sed -i 's/arm/kamikaze/g' /etc/hosts
 	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
-  echo "root:$ROOTPASS" | chpasswd
+	echo "** Set Root password to $ROOTPASS **"
+	echo "root:$ROOTPASS" | chpasswd
 	chown -R octo:octo /usr/src/Kamikaze2
 
 	apt-get clean
@@ -305,11 +306,11 @@ other() {
 	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
 	date=$(date +"%d-%m-%Y")
-  echo "$VERSION $date" > /etc/kamikaze-release
+	echo "$VERSION $date" > /etc/kamikaze-release
 }
 
 install_usbreset() {
-  echo "** Installing usbreset **"
+	echo "** Installing usbreset **"
 	cd $WD
 	cc usbreset.c -o usbreset
 	chmod +x usbreset
@@ -317,7 +318,7 @@ install_usbreset() {
 }
 
 install_smbd() {
-  echo "** Installing samba **"
+	echo "** Installing samba **"
 	apt-get -y install samba
 	cat > /etc/samba/smb.conf <<EOF
 	dns proxy = no
@@ -371,7 +372,7 @@ EOF
 }
 
 install_dummy_logging() {
-  echo "** Install dummy logging **"
+	echo "** Install dummy logging **"
 	apt-get install rungetty
 	useradd -m dummy
 	usermod -a -G systemd-journal dummy
@@ -382,7 +383,7 @@ install_dummy_logging() {
 }
 
 install_mjpgstreamer() {
-  echo "** Install mjpgstreamer **"
+	echo "** Install mjpgstreamer **"
 	apt-get install -y cmake libjpeg62-dev
 	cd /usr/src/
 	git clone --depth 1 https://github.com/jacksonliam/mjpg-streamer
@@ -408,7 +409,7 @@ EOL
 }
 
 rename_ssh() {
-  echo "** Update SSH message **"
+	echo "** Update SSH message **"
 	cat > /etc/issue.net << EOL
 $VERSION
 rcn-ee.net console Ubuntu Image 2017-01-13
