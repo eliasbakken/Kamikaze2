@@ -47,12 +47,10 @@ wlan_fixes() {
 	#This module is a workaround for the network manager 1.2.4 install
 	wget http://launchpadlibrarian.net/299750846/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb -P $WD
 	apt-get -y remove connman
-	cat >/etc/resolv.conf <<EOL
-#### Temporary resolv.conf file ####
-nameserver 8.8.8.8
-nameserver 8.8.4.4
-EOL
 	dpkg -i $WD/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
+        ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
+	dhclient eth0
+	dhclient wlan0
 	apt-get install -yf
 	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
 	cp $WD/interfaces /etc/network/
