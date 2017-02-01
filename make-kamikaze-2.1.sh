@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 #
 # base is https://rcn-ee.com/rootfs/2017-01-13/microsd/bone-ubuntu-16.04.1-console-armhf-2017-01-13-2gb.img.xz
 #

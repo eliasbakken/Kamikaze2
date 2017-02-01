@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 WD=/usr/src/Kamikaze2/
 
