@@ -1,5 +1,8 @@
 #!/bin/bash
 set -x
+>/root/prep_ubuntu.log
+exec >  >(tee -ia /root/prep_ubuntu.log)
+exec 2> >(tee -ia /root/prep_ubuntu.log >&2)
 
 WD=/usr/src/Kamikaze2/
 

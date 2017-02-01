@@ -1,5 +1,8 @@
 #!/bin/bash
 set -x
+>/root/make-kamikaze.log
+exec >  >(tee -ia /root/make-kamikaze.log)
+exec 2> >(tee -ia /root/make-kamikaze.log >&2)
 #
 # base is https://rcn-ee.com/rootfs/2017-01-13/microsd/bone-ubuntu-16.04.1-console-armhf-2017-01-13-2gb.img.xz
 #
