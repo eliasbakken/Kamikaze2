@@ -47,15 +47,9 @@ wlan_fixes() {
 	mkdir -p /etc/pm/sleep.d
 	touch /etc/pm/sleep.d/wireless
 
-	echo "** Install Network Manager 1.2.4 **"
-	#This module is a workaround for the network manager 1.2.4 install
-	wget http://launchpadlibrarian.net/299750846/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb -P $WD
-	apt-get -y remove connman
-	dpkg -i $WD/network-manager_1.2.4-0ubuntu0.16.04.1_armhf.deb
-        ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
-	dhclient eth0
-	dhclient wlan0
-	apt-get install -yf
+	echo "** Install Network Manager **"
+	apt-get -y install network-manager
+	ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
 	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
 	cp $WD/interfaces /etc/network/
 }
