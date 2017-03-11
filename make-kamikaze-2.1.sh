@@ -95,7 +95,8 @@ install_dependencies(){
 	libclutter-1.0-common \
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
-	libmx-bin
+	libmx-bin \
+	cpufreq-utils
 
 	pip install --upgrade pip
 	pip install setuptools
@@ -117,7 +118,7 @@ install_dependencies(){
 	source linuxbuild
 	cp ../pasm /usr/bin/
 	chmod +x /usr/bin/pasm
-
+	echo 'GOVERNOR'="performance"' > /etc/defaults/cpufrequtils
 	apt-get autoremove -y
 }
 
