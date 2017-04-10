@@ -52,6 +52,11 @@ wlan_fixes() {
 	ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
 	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
 	cp $WD/interfaces /etc/network/
+
+	echo "** Remove default TI firmware **"
+	#This is to remove the default TI firmware for the wireless.
+	#Due to https://gist.github.com/theojulienne/9251b79bcbd68b4e9240
+	rm -rf /lib/firmware/ti-connectivity/wl1271-nvs.bin
 }
 
 remove_unneeded_packages() {
