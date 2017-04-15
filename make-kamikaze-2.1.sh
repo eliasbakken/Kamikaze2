@@ -96,7 +96,8 @@ install_dependencies(){
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
 	libmx-bin \
-	cpufreq-utils
+	cpufreq-utils \
+	ti-pru-cgt-installer
 
 	pip install --upgrade pip
 	pip install setuptools
