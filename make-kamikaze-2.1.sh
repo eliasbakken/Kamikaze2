@@ -1,7 +1,10 @@
 #!/bin/bash
-
+set -x
+>/root/make-kamikaze.log
+exec >  >(tee -ia /root/make-kamikaze.log)
+exec 2> >(tee -ia /root/make-kamikaze.log >&2)
 #
-# base is https://rcn-ee.com/rootfs/2016-11-10/flasher/BBB-eMMC-flasher-ubuntu-16.04.1-console-armhf-2016-11-10-2gb.img.xz
+# base is https://rcn-ee.com/rootfs/2017-01-13/microsd/bone-ubuntu-16.04.1-console-armhf-2017-01-13-2gb.img.xz
 #
 
 # TODO 2.1: 
@@ -33,16 +36,19 @@
 # redeem starts after spidev2.1
 # Adafruit lib disregard overlay (Swithed to spidev)
 # cura engine
-# iptables-persistenthttps://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
+# iptables-persistent https://github.com/eliasbakken/Kamikaze2/releases/tag/v2.0.7rc1
 # clear cache
 # Update dogtag
 # Update Redeem / Toggle
-# Sync Redeem master with develop.  	
+# Sync Redeem master with develop.  
 # Choose Toggle config
 
+# this defines the octoprint release tag version#
+OCTORELEASE="1.3.1"
 WD=`pwd`/
-VERSION="Kamikaze 2.1.0"
+VERSION="Kamikaze 2.1.1"
 OCTORELEASE=1.3.1
+ROOTPASS="kamikaze"
 DATE=`date`
 echo "**Making ${VERSION}**"
 
@@ -62,14 +68,15 @@ EOL
 }
 
 install_dependencies(){
+	echo "** Removing old kernels **"
+	apt-get purge -y linux-image-4.4.40-ti* linux-image-4.9* rtl8723bu-modules-4.4.30-ti* rtl8723bu-modules-4.9*
 	echo "** Install dependencies **"
 	echo "APT::Install-Recommends \"false\";" > /etc/apt/apt.conf.d/99local
 	echo "APT::Install-Suggests \"false\";" >> /etc/apt/apt.conf.d/99local
-	apt-get install -y libegl1-sgx-omap3
+	apt-get install -y libegl1-sgx-omap3 libgles2-sgx-omap3
 	apt-get install -y \
 	python-pip \
 	python-dev \
-	network-manager \
 	swig \
 	socat \
 	ti-sgx-es8-modules-`uname -r` \
@@ -88,10 +95,16 @@ install_dependencies(){
 	libclutter-1.0-common \
 	libclutter-imcontext-0.1-bin \
 	libcogl-common \
-	libmx-bin
+	libmx-bin \
+	cpufreq-utils \
+	ti-pru-cgt-installer
+
 	pip install --upgrade pip
 	pip install setuptools
 	pip install evdev spidev Adafruit_BBIO
+
+	wget https://git.ti.com/pru-software-support-package/pru-software-support-package/archive-tarball/v5.1.0 -o /usr/src/pru-software-support-package-5.1.0.tar.gz
+	tar -zxvf /usr/src/pru-software-support-package-5.1.0.tar.gz /usr/src/pru-software-support-package
 
 	wget https://github.com/beagleboard/am335x_pru_package/archive/master.zip
 	unzip master.zip
@@ -109,10 +122,33 @@ install_dependencies(){
 	source linuxbuild
 	cp ../pasm /usr/bin/
 	chmod +x /usr/bin/pasm
+	echo 'GOVERNOR'="performance"' > /etc/defaults/cpufrequtils
+	apt-get autoremove -y
+}
 
-	apt-get purge -y \
-	linux-image-4.4.30-ti-r66\
-	rtl8723bu-modules-4.4.30-ti-r66
+install_sgx() {
+	echo "** install SGX **"
+	cd /usr/src/Kamikaze2
+	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
+	cd /opt/gfxinstall/
+	./sgx-install.sh
+	cd /usr/src/Kamikaze2/
+	cp scripts/sgx-startup.service /lib/systemd/system/
+	systemctl enable sgx-startup.service
+	depmod -a `uname -r`
+	ln -s /usr/lib/libEGL.so /usr/lib/libEGL.so.1
+}
+
+create_user() {
+	echo "** Create user **"
+	default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
+	mkdir /home/octo/
+	mkdir /home/octo/.octoprint
+	useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
+	chown -R octo:octo /home/octo
+	chown -R octo:octo /usr/local/lib/python2.7/
+	chown -R octo:octo /usr/local/bin
+	chmod 755 -R /usr/local/lib/python2.7/
 }
 
 install_redeem() {
@@ -124,8 +160,9 @@ install_redeem() {
 	cd redeem
 	git pull
 	python setup.py clean install
-	cp -r configs /etc/redeem
 	# Make profiles uploadable via Octoprint
+	cp -r configs /etc/redeem
+	cp -r data /etc/redeem
 	touch /etc/redeem/local.cfg
 	chown -R octo:octo /etc/redeem/
 	chown -R octo:octo /usr/src/redeem/
@@ -141,24 +178,12 @@ install_redeem() {
 	systemctl start redeem
 }
 
-create_user() {
-	echo "** Create user **"
-	default_groups="admin,adm,dialout,i2c,kmem,spi,cdrom,floppy,audio,dip,video,netdev,plugdev,users,systemd-journal,tisdk,weston-launch,xenomai"
-	mkdir /home/octo/
-	mkdir /home/octo/.octoprint
-	useradd -G "${default_groups}" -s /bin/bash -m -p octo -c "OctoPrint" octo
-	chown -R octo:octo /home/octo
-	chown -R octo:octo /usr/local/lib/python2.7/
-	chown -R octo:octo /usr/local/bin
-	chmod 755 -R /usr/local/lib/python2.7/
-}
-
 install_octoprint() {
 	echo "** Install OctoPrint **" 
 	cd /home/octo
-    if [ ! -d "OctoPrint" ]; then
-	     su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
-    fi
+	if [ ! -d "OctoPrint" ]; then
+		su - octo -c "git clone --branch ${OCTORELEASE} --depth 1 https://github.com/foosel/OctoPrint.git"
+	fi
 	chown -R octo:octo /usr/local/lib/python2.7/dist-packages/
 	chown -R octo:octo /usr/local/bin/
 	su - octo -c 'cd OctoPrint && python setup.py clean install'
@@ -178,9 +203,11 @@ install_octoprint() {
 	# Grant octo redeem restart rights
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /bin/systemctl restart mjpg.service" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart octoprint.service" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /sbin/reboot" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /sbin/shutdown -h now" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /sbin/poweroff" >> /etc/sudoers
 
 	echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/redeem install" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /usr/bin/make -C /usr/src/toggle install" >> /etc/sudoers
@@ -221,20 +248,6 @@ install_overlays() {
 	./install.sh
 }
 
-install_sgx() {
-	echo "** install SGX **"
-	cd /usr/src/Kamikaze2
-	tar xfv GFX_5.01.01.02_es8.x.tar.gz -C /
-	cd /opt/gfxinstall/
-	./sgx-install.sh
-	cd /usr/src/Kamikaze2/
-	cp scripts/sgx-startup.service /lib/systemd/system/
-	systemctl enable sgx-startup.service
-	depmod -a `uname -r`
-	ln -s /usr/lib/libEGL.so /usr/lib/libEGL.so.1
-}
-
-
 install_toggle() {
 	echo "** install toggle **"
 	cd /usr/src
@@ -243,8 +256,8 @@ install_toggle() {
     	fi
 	cd toggle
 	python setup.py clean install
-	cp -r configs /etc/toggle
 	# Make it writable for updates
+	cp -r configs /etc/toggle
 	chown -R octo:octo /usr/src/toggle/
 	cp systemd/toggle.service /lib/systemd/system/
 	systemctl enable toggle
@@ -280,16 +293,18 @@ install_uboot() {
 	export DISK=/dev/mmcblk0
 	dd if=./u-boot/MLO of=${DISK} count=1 seek=1 bs=128k
 	dd if=./u-boot/u-boot.img of=${DISK} count=2 seek=1 bs=384k
-    cp ./u-boot/MLO /boot/uboot/
-    cp ./u-boot/u-boot.img /boot/uboot/
+	cp ./u-boot/MLO /boot/uboot/
+	cp ./u-boot/u-boot.img /boot/uboot/
 }
 
 other() {
+	echo "** Performing general actions **"
 	sed -i 's/cape_universal=enable/consoleblank=0 fbcon=rotate:1 omap_wdt.nowayout=0/' /boot/uEnv.txt
 	sed -i 's/arm/kamikaze/' /etc/hostname
 	sed -i 's/arm/kamikaze/g' /etc/hosts
 	sed -i 's/AcceptEnv LANG LC_*/#AcceptEnv LANG LC_*/'  /etc/ssh/sshd_config
-
+	echo "** Set Root password to $ROOTPASS **"
+	echo "root:$ROOTPASS" | chpasswd
 	chown -R octo:octo /usr/src/Kamikaze2
 
 	apt-get clean
@@ -300,10 +315,11 @@ other() {
 	echo 'KERNEL=="uinput", GROUP="wheel", MODE:="0660"' > /etc/udev/rules.d/80-lcd-screen.rules
 	echo 'SYSFS{idVendor}=="0eef", SYSFS{idProduct}=="0001", KERNEL=="event*",SYMLINK+="input/touchscreen_eGalaxy3"' >> /etc/udev/rules.d/80-lcd-screen.rules
 	date=$(date +"%d-%m-%Y")
-	cat "Kamikaze 2.1.0 $date" > /etc/kamikaze-release
+	echo "$VERSION $date" > /etc/kamikaze-release
 }
 
 install_usbreset() {
+	echo "** Installing usbreset **"
 	cd $WD
 	cc usbreset.c -o usbreset
 	chmod +x usbreset
@@ -311,6 +327,7 @@ install_usbreset() {
 }
 
 install_smbd() {
+	echo "** Installing samba **"
 	apt-get -y install samba
 	cat > /etc/samba/smb.conf <<EOF
 	dns proxy = no
@@ -364,6 +381,7 @@ EOF
 }
 
 install_dummy_logging() {
+	echo "** Install dummy logging **"
 	apt-get install rungetty
 	useradd -m dummy
 	usermod -a -G systemd-journal dummy
@@ -373,12 +391,8 @@ install_dummy_logging() {
 	sed -i "/.*ExecStart*./ c $text" /etc/systemd/system/getty.target.wants/getty@tty1.service
 }
 
-fix_wlan() {
-	sed -i 's/^\[main\]/\[main\]\ndhcp=internal/' /etc/NetworkManager/NetworkManager.conf
-	cp $WD/interfaces /etc/network/
-}
-
 install_mjpgstreamer() {
+	echo "** Install mjpgstreamer **"
 	apt-get install -y cmake libjpeg62-dev
 	cd /usr/src/
 	git clone --depth 1 https://github.com/jacksonliam/mjpg-streamer
@@ -403,6 +417,16 @@ EOL
 	systemctl start mjpg.service
 }
 
+rename_ssh() {
+	echo "** Update SSH message **"
+	cat > /etc/issue.net << EOL
+$VERSION
+rcn-ee.net console Ubuntu Image 2017-01-13
+
+Check that nothing is printing before any CPU/disk intensive operations!
+EOL
+}
+
 dist() {
 	port_forwarding
 	install_dependencies
@@ -420,13 +444,11 @@ dist() {
 	install_usbreset
 	install_smbd
 	install_dummy_logging
-	fix_wlan
 	install_mjpgstreamer
+	rename_ssh
 }
-
 
 dist
 
 echo "Now reboot!"
-
 

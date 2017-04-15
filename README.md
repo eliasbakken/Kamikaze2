@@ -1,24 +1,10 @@
 # Kamikaze2
 Simplified Kamikaze image generation
 
-The starting point for Kamikaze 2.1.0 is the Ubuntu console image found here: 
-http://elinux.org/BeagleBoardUbuntu#eMMC:_BeagleBone_Black.2FGreen
+The starting point for Kamikaze 2.1.0 is the Ubuntu console image, details are in the wiki here:
+https://github.com/goeland86/Kamikaze2/wiki
 
-To create Kamikaze 2.1:
-    
-    disable the eMMC flasher on the SD image first!
-    ssh ubuntu@arm (password: temppwd)
-    sudo su -
-    passwd (set root password to kamikaze)
-    cd /usr/src
-    git clone http://github.com/eliasbakken/Kamikaze2
-    cd Kamikaze2
-    bash prep_ubuntu.sh
-    reboot the BBB from the SD again
-    ssh ubuntu@arm (password: temppwd)
-    sudo su -
-    cd /usr/src/Kamikaze2/
-    bash make-kamikaze-2.1.sh
+## Previous versions
 
 The starting point for Kamikaze 2.0.0 is the Debian IoT image found here: 
 https://debian.beagleboard.org/images/
@@ -40,7 +26,9 @@ Here is how to recreate for Kamikaze 2.0:
 
 The update command will kick the user out from the ssh session. 
 
-Changelog: 
+# Changelog: 
+2.1.0 - Migrated from Debian IoT jessie base to Ubuntu 16.04.1LTS, using 4.1 LTS kernel, included 2 octoprint plugins (FileManager and Slicer) for nearly completely autonomous printer from the original setup. Switched from connman to Network-Manager, configuration done through console utility nmtui
+
 2.0.0 - Kernel 4.4.20-bone13, cogl-1.22, clutter-1.26
 
 1.1.1 - chown octo:octo on /etc/redeem and /etc/toggle
