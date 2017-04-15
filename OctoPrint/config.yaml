@@ -44,6 +44,17 @@ server:
     serverRestartCommand: sudo systemctl restart octoprint.service
     systemRestartCommand: sudo reboot
     systemShutdownCommand: sudo shutdown -h now
+system:
+  actions:
+  - action: restart_redeem
+    command: sudo systemctl restart redeem.service
+    name: Restart Redeem
+  - action: restart_toggle
+    command: sudo systemctl restart toggle.service
+    name: Restart Toggle
+  - action: restart mjpg
+    command: sudo systemctl restart mjpg.service
+    name: Restart Mjpg
 temperature: {}
 webcam:
   stream: http://kamikaze.local:8080/?action=stream
