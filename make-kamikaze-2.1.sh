@@ -203,6 +203,7 @@ install_octoprint() {
 	# Grant octo redeem restart rights
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart redeem.service" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart toggle.service" >> /etc/sudoers
+	echo "%octo ALL=NOPASSWD: /bin/systemctl restart mjpg.service" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /bin/systemctl restart octoprint.service" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /sbin/reboot" >> /etc/sudoers
 	echo "%octo ALL=NOPASSWD: /sbin/shutdown -h now" >> /etc/sudoers
